@@ -19,7 +19,7 @@
     <div class="clay-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-extrabold text-[#29283D] flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-base">🧭</span>
+                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm3.5 6.5l-2 5-5 2 2-5 5-2z"/></svg></span>
                 <span>Master Data Guide Wisata</span>
             </h2>
             <p class="text-xs text-[#77768C] mt-1">Kelola master guide, status aktif/suspend, dan urutan rotasi antrean</p>
@@ -221,7 +221,7 @@
                     @empty
                     <tr>
                         <td colspan="8" class="px-4 py-10 text-center text-[#77768C]">
-                            <div class="text-3xl mb-2">🧭</div>
+                            <div class="w-12 h-12 mx-auto mb-2 text-[#6C63FF]/40"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm3.5 6.5l-2 5-5 2 2-5 5-2z"/></svg></div>
                             <p class="font-bold">Belum ada guide terdaftar.</p>
                         </td>
                     </tr>

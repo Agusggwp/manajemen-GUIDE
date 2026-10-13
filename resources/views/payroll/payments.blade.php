@@ -8,7 +8,7 @@
     <div class="clay-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-extrabold text-[#29283D] flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-base">📜</span>
+                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
                 <span>Histori Pembayaran Guide</span>
             </h2>
             <p class="text-xs text-[#77768C] mt-1">Semua transaksi pengeluaran fee dan gaji yang sudah diproses</p>
@@ -62,7 +62,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="px-4 py-10 text-center text-[#77768C]">
-                            <div class="text-3xl mb-2">📜</div>
+                            <div class="w-12 h-12 mx-auto mb-2 text-[#6C63FF]/40"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
                             <p class="font-bold">Belum ada riwayat pembayaran yang tercatat.</p>
                         </td>
                     </tr>

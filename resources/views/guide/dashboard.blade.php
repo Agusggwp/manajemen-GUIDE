@@ -109,7 +109,7 @@
                     <span class="text-xs font-bold text-rose-700">Ditangguhkan</span>
                 @elseif($isMyTurnNext)
                     <span class="text-xs font-extrabold text-[#6C63FF] flex items-center gap-1">
-                        <span>⭐</span> Giliran Anda!
+                        <svg class="w-3.5 h-3.5 fill-[#FFD166] inline-block -mt-0.5" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg> <span>Giliran Anda!</span>
                     </span>
                 @elseif($myInfo && $myInfo->is_on_tour)
                     <span class="text-xs font-bold text-blue-700">Sedang On Tour</span>
@@ -260,7 +260,7 @@
                                 <span class="px-1.5 py-0.2 rounded-md text-[9px] font-bold bg-[#6C63FF] text-white">Anda</span>
                             @endif
                             @if($og->is_next)
-                                <span class="px-1.5 py-0.2 rounded-md text-[9px] font-extrabold bg-[#FFD166] text-[#29283D]">⭐ Berikutnya</span>
+                                <span class="px-1.5 py-0.2 rounded-md text-[9px] font-extrabold bg-[#FFD166] text-[#29283D]">Berikutnya</span>
                             @endif
                         </div>
                         <span class="text-[10px] text-[#77768C]">Masuk: {{ $og->check_in_time }} WITA</span>
@@ -351,7 +351,7 @@
                     @csrf
                     <button type="submit" 
                             class="clay-btn clay-btn-primary w-full py-2.5 px-3 text-xs font-bold">
-                        ▶ MULAI TUR (START TOUR)
+                        <svg class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.5 3.5l11 6.5-11 6.5V3.5z"/></svg>MULAI TUR (START TOUR)
                     </button>
                 </form>
                 @elseif($job->status === 'ON_GOING')
@@ -359,7 +359,7 @@
                     @csrf
                     <button type="submit" 
                             class="clay-btn clay-btn-turquoise w-full py-2.5 px-3 text-xs font-bold text-[#147a6f]">
-                        ✓ SELESAIKAN TUR (COMPLETE)
+                        <svg class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>SELESAIKAN TUR (COMPLETE)
                     </button>
                 </form>
                 @endif

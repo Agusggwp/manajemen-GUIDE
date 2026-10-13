@@ -16,7 +16,7 @@
                 <a href="{{ route('direct-tours.create') }}" 
                    class="clay-btn clay-btn-coral py-2 px-3.5 text-xs font-bold tracking-wide flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    <span>⚡ Tour Langsung (Walk-In)</span>
+                    <span>Tour Langsung (Walk-In)</span>
                 </a>
                 <a href="{{ route('bookings.create') }}" 
                    class="clay-btn clay-btn-primary py-2 px-3.5 text-xs font-bold tracking-wide flex items-center gap-2">
@@ -87,7 +87,7 @@
                         <td class="px-4 py-3.5">
                             <div class="flex items-center gap-1.5">
                                 @if($b->is_walkin)
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-[#FFD166]/25 text-[#8a6800] border border-[#FFD166]/60">⚡ Walk-in</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-[#FFD166]/25 text-[#8a6800] border border-[#FFD166]/60">Walk-in</span>
                                 @endif
                                 <a href="{{ route('bookings.show', $b) }}" class="font-bold text-[#6C63FF] hover:underline">
                                     {{ $b->booking_code }}

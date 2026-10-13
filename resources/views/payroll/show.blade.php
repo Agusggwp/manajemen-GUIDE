@@ -174,7 +174,7 @@
         <div @click.away="paymentModalOpen = false" class="clay-card max-w-md w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[#E8E6F0] pb-3">
                 <h3 class="text-sm font-extrabold text-[#29283D] flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-xs">💳</span>
+                    <span class="w-6 h-6 rounded-lg bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg></span>
                     Catat Pembayaran Gaji / Fee Guide
                 </h3>
                 <button type="button" @click="paymentModalOpen = false" class="text-[#77768C] hover:text-[#29283D] text-lg font-bold">&times;</button>

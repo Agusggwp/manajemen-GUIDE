@@ -33,7 +33,7 @@
 
             @if($isMyTurnNext)
                 <span class="px-3 py-1 rounded-full text-xs font-black bg-[#FFD166] text-[#29283D] shadow-md flex items-center gap-1 animate-bounce">
-                    <span>⭐</span> GILIRAN BERIKUTNYA!
+                    <svg class="w-3.5 h-3.5 fill-current inline-block mr-1 -mt-0.5" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><span>GILIRAN BERIKUTNYA!</span>
                 </span>
             @elseif($myInfo && $myInfo->is_on_tour)
                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 backdrop-blur-xs">
@@ -74,12 +74,12 @@
 
         @if($isMyTurnNext)
             <div class="mt-3.5 p-3 rounded-2xl bg-[#FFD166]/25 border border-[#FFD166]/50 text-white text-xs flex items-center gap-2 backdrop-blur-xs">
-                <span class="text-base">📢</span>
+                <svg class="w-4 h-4 shrink-0 text-[#FFD166]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 <span><strong>Siap-siap!</strong> Anda berada di posisi terdepan untuk menerima penugasan tour berikutnya.</span>
             </div>
         @elseif($myInfo && $myInfo->is_available && $guidesAheadCount > 0)
             <div class="mt-3.5 p-3 rounded-2xl bg-white/15 text-white text-xs flex items-center gap-2 backdrop-blur-xs border border-white/10">
-                <span class="text-base">⏳</span>
+                <svg class="w-4 h-4 shrink-0 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Ada <strong>{{ $guidesAheadCount }} guide</strong> lagi sebelum giliran Anda tiba.</span>
             </div>
         @elseif(!($todayAttendance ?? null) || ($todayAttendance->status ?? null) !== 'CHECKED_IN')
@@ -141,7 +141,7 @@
                                     <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#6C63FF] text-white">Anda</span>
                                 @endif
                                 @if($row->is_next)
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFD166] text-[#29283D] border border-[#FFD166]/60">⭐ Giliran Berikutnya</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFD166] text-[#29283D] border border-[#FFD166]/60">Giliran Berikutnya</span>
                                 @endif
                             </div>
 

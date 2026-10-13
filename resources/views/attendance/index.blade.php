@@ -26,7 +26,7 @@
                 <span class="text-xs text-[#77768C] font-bold uppercase tracking-wider">Hadir & Check-in</span>
                 <span class="text-2xl font-black text-[#6C63FF] block mt-1 font-display">{{ $checkedInCount }}</span>
             </div>
-            <div class="w-11 h-11 rounded-2xl bg-[#6C63FF]/15 text-[#6C63FF] flex items-center justify-center font-black text-base shadow-xs">✓</div>
+            <div class="w-11 h-11 rounded-2xl bg-[#6C63FF]/15 text-[#6C63FF] flex items-center justify-center shadow-xs"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
         </div>
 
         <div class="clay-card p-4 flex items-center justify-between">
@@ -34,7 +34,7 @@
                 <span class="text-xs text-[#77768C] font-bold uppercase tracking-wider">Selesai / Checked Out</span>
                 <span class="text-2xl font-black text-[#29283D] block mt-1 font-display">{{ $checkedOutCount }}</span>
             </div>
-            <div class="w-11 h-11 rounded-2xl bg-slate-100 text-[#77768C] flex items-center justify-center font-bold text-base shadow-xs">⏱</div>
+            <div class="w-11 h-11 rounded-2xl bg-slate-100 text-[#77768C] flex items-center justify-center shadow-xs"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
         </div>
 
         <div class="clay-card p-4 flex items-center justify-between">
@@ -42,7 +42,7 @@
                 <span class="text-xs text-[#77768C] font-bold uppercase tracking-wider">Belum Check-in / OFF</span>
                 <span class="text-2xl font-black text-[#FF8A65] block mt-1 font-display">{{ $notCheckedInCount }}</span>
             </div>
-            <div class="w-11 h-11 rounded-2xl bg-[#FF8A65]/15 text-[#FF8A65] flex items-center justify-center font-bold text-base shadow-xs">⚠</div>
+            <div class="w-11 h-11 rounded-2xl bg-[#FF8A65]/15 text-[#FF8A65] flex items-center justify-center shadow-xs"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
         </div>
     </div>
 
@@ -108,7 +108,7 @@
                             @if($row->latitude && $row->longitude)
                                 <a href="https://maps.google.com/?q={{ $row->latitude }},{{ $row->longitude }}" target="_blank"
                                    class="inline-flex items-center gap-1 text-[#6C63FF] hover:underline font-bold">
-                                    <span>📍 Peta ({{ round($row->latitude, 4) }}, {{ round($row->longitude, 4) }})</span>
+                                    <svg class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Peta ({{ round($row->latitude, 4) }}, {{ round($row->longitude, 4) }})</span>
                                 </a>
                             @else
                                 <span class="text-slate-400 italic">Tanpa GPS</span>

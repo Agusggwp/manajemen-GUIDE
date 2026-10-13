@@ -19,7 +19,7 @@
                 <h2 class="text-xl font-black text-[#29283D] font-display">{{ $booking->booking_code }}</h2>
                 @if($booking->is_walkin)
                     <span class="px-3 py-1 rounded-full text-xs font-black bg-[#FFD166]/25 text-[#8a6800] border border-[#FFD166]/60 flex items-center gap-1 shadow-xs">
-                        <span>⚡</span> Tour Langsung (Walk-In)
+                        <svg class="w-3.5 h-3.5 inline-block -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Tour Langsung (Walk-In)
                     </span>
                 @endif
                 @if($booking->status === 'FULLY_ASSIGNED')
@@ -46,7 +46,7 @@
                 @if($booking->remainingGuestsCount() > 0)
                 <button type="button" @click="autoModalOpen = true"
                         class="clay-btn clay-btn-primary py-2 px-4 text-xs font-bold flex items-center gap-1.5">
-                    <span>⚡ Auto Assign Guide</span>
+                    <svg class="w-3.5 h-3.5 inline-block -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg><span>Auto Assign Guide</span>
                 </button>
 
                 <button type="button" @click="manualModalOpen = true"
@@ -186,7 +186,7 @@
             <div class="flex items-center gap-2">
                 <button type="button" @click="autoModalOpen = true"
                         class="clay-btn clay-btn-primary py-1.5 px-3.5 text-xs font-bold">
-                    ⚡ Auto Assign
+                    <svg class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>Auto Assign
                 </button>
                 <button type="button" @click="manualModalOpen = true"
                         class="clay-btn clay-btn-secondary py-1.5 px-3 text-xs font-bold text-[#77768C]">
@@ -324,7 +324,7 @@
     <div x-show="autoModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#29283D]/40 backdrop-blur-sm">
         <div @click.away="autoModalOpen = false" class="clay-card max-w-md w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[#E8E6F0] pb-3.5">
-                <h3 class="text-sm font-extrabold text-[#29283D] font-display">⚡ Auto Assign Guide (Continuous Queue)</h3>
+                <h3 class="text-sm font-extrabold text-[#29283D] font-display"><svg class="w-4 h-4 text-[#6C63FF] inline-block mr-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>Auto Assign Guide (Continuous Queue)</h3>
                 <button type="button" @click="autoModalOpen = false" class="text-[#77768C] hover:text-[#29283D] font-bold text-lg">&times;</button>
             </div>
 
@@ -406,7 +406,7 @@
 
                         <div class="text-right text-[11px]">
                             @if($gItem->has_conflict)
-                                <span class="font-bold text-rose-600 block">⚠ Jadwal bertabrakan</span>
+                                <span class="font-bold text-rose-600 flex items-center justify-end gap-1"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Jadwal bertabrakan</span></span>
                             @elseif(!$gItem->is_checked_in)
                                 <span class="text-[#FF8A65] font-semibold block">Belum check-in</span>
                             @elseif($gItem->is_already_assigned)
@@ -414,7 +414,7 @@
                             @elseif($gItem->guide->status === 'OFF')
                                 <span class="text-rose-600 font-semibold block">OFF</span>
                             @else
-                                <span class="font-bold text-[#147a6f] block">✓ Guide tersedia</span>
+                                <span class="font-bold text-[#147a6f] flex items-center justify-end gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Guide tersedia</span></span>
                             @endif
                         </div>
                     </label>

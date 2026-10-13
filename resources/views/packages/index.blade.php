@@ -8,7 +8,7 @@
     <div class="clay-card p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-extrabold text-[#29283D] flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-base">🏖️</span>
+                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>
                 <span>Katalog Paket Wisata Bali & Skema Harga</span>
             </h2>
             <p class="text-xs text-[#77768C] mt-1">Harga per tamu otomatis dipilih sistem berdasarkan kuota jumlah tamu booking</p>
@@ -120,7 +120,7 @@
         </div>
         @empty
         <div class="md:col-span-2 clay-card p-10 text-center text-[#77768C] text-xs">
-            <div class="text-3xl mb-2">🏖️</div>
+            <div class="w-12 h-12 mx-auto mb-2 text-[#6C63FF]/40"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
             <p class="font-bold">Belum ada paket wisata terdaftar.</p>
         </div>
         @endforelse

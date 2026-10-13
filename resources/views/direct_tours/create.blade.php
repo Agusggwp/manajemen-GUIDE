@@ -144,7 +144,7 @@
                             <div class="ml-3 flex-1">
                                 <div class="flex items-center justify-between">
                                     <span class="font-bold text-sm text-[#29283D] flex items-center gap-1.5">
-                                        ⚡ Otomatis Sesuai Antrean Guide (Rekomendasi)
+                                        <svg class="w-4 h-4 text-[#6C63FF] inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg><span>Otomatis Sesuai Antrean Guide (Rekomendasi)</span>
                                     </span>
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#6C63FF] text-white">Adil & Merata</span>
                                 </div>

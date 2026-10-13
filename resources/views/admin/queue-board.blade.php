@@ -50,7 +50,7 @@
         <div class="flex items-center gap-2.5">
             <a href="{{ route('direct-tours.create') }}" class="clay-btn clay-btn-coral py-2 px-4 text-xs font-bold flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                <span>⚡ Buat Tour Langsung</span>
+                <span>Buat Tour Langsung</span>
             </a>
             <a href="{{ route('guides.index') }}" class="clay-btn clay-btn-secondary py-2 px-3.5 text-xs font-bold text-[#77768C]">
                 Atur Urutan Antrean
@@ -336,7 +336,7 @@
                                     @csrf
                                     <button type="submit" 
                                             class="clay-btn clay-btn-primary py-1.5 px-3 text-xs font-bold">
-                                        ⚡ Auto Assign Guide
+                                        <svg class="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>Auto Assign Guide
                                     </button>
                                 </form>
                                 <a href="{{ route('bookings.show', $b) }}" class="clay-btn clay-btn-secondary py-1.5 px-3 text-xs font-bold text-[#77768C]">

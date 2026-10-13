@@ -42,7 +42,7 @@
                 <form action="{{ route('reports.revenue') }}" method="GET" class="flex flex-wrap items-center gap-2 text-xs">
                     <input type="hidden" name="filter_type" value="month">
                     <div class="flex items-center gap-1.5 bg-[#F4F3FA] border border-[#E8E6F0] rounded-xl px-3 py-1.5 shadow-inner">
-                        <span class="text-xs text-[#77768C]">🗓️ Bulan:</span>
+                        <span class="text-xs text-[#77768C] flex items-center gap-1"><svg class="w-3.5 h-3.5 text-[#77768C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span>Bulan:</span></span>
                         <select name="month" class="bg-transparent text-xs font-bold text-[#29283D] focus:outline-none cursor-pointer py-0.5">
                             @foreach(($months ?? []) as $num => $name)
                                 <option value="{{ $num }}" {{ ($selectedMonth ?? date('n')) == $num ? 'selected' : '' }}>

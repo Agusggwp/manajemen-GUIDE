@@ -67,7 +67,7 @@ class DirectTourController extends Controller
             $statusText = $result['assignment']->status === 'ON_GOING' ? 'dan langsung BERJALAN' : 'dan siap bertugas';
 
             return redirect()->route('bookings.show', $booking)
-                ->with('success', "⚡ Tour Langsung {$booking->booking_code} berhasil dibuat {$statusText}! Guide ditugaskan: {$guide->nama} (#{$guide->queue_number}).");
+                ->with('success', "Tour Langsung {$booking->booking_code} berhasil dibuat {$statusText}! Guide ditugaskan: {$guide->nama} (#{$guide->queue_number}).");
         } catch (Exception $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }

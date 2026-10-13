@@ -13,7 +13,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="h-full antialiased font-sans text-[#29283D] bg-[#F4F3FA] pb-24">
+<body class="min-h-full antialiased font-sans text-[#29283D] bg-[#F4F3FA]">
     <div class="max-w-md mx-auto min-h-screen bg-[#F4F3FA] flex flex-col shadow-[0_0_30px_rgba(55,48,100,0.06)]">
         <!-- Top App Bar (Claymorphism Purple) -->
         <header class="sticky top-0 z-30 bg-gradient-to-r from-[#6C63FF] to-[#5850E6] text-white px-4 py-3.5 shadow-[0_6px_20px_rgba(108,99,255,0.28)]">
@@ -50,12 +50,12 @@
         </header>
 
         <!-- Main Body -->
-        <main class="flex-1 p-4">
+        <main class="flex-1 px-4 pt-4 pb-28 sm:pb-32" style="padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));">
             <!-- Flash Message -->
             @if(session('success'))
             <div class="mb-4 p-3.5 rounded-2xl bg-white border border-[#72D6C9]/50 text-[#1F7368] text-xs font-semibold flex items-center justify-between shadow-[6px_8px_20px_rgba(55,48,100,0.06)]">
                 <div class="flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-lg bg-[#EBFBF8] text-[#72D6C9] flex items-center justify-center text-xs">✓</span>
+                    <span class="w-5 h-5 rounded-lg bg-[#EBFBF8] text-[#72D6C9] flex items-center justify-center text-xs"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
                     <span>{{ session('success') }}</span>
                 </div>
                 <button type="button" @click="$el.parentElement.remove()" class="text-[#1F7368]/60 hover:text-[#1F7368] font-bold">×</button>
@@ -76,7 +76,7 @@
         </main>
 
         <!-- Bottom Navigation Bar (Mobile Clay Bar) -->
-        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-[#E8E6F0] rounded-t-3xl z-40 flex items-center justify-around py-2 px-2 shadow-[0_-8px_25px_rgba(55,48,100,0.08)]">
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-[#E8E6F0] rounded-t-3xl z-40 flex items-center justify-around py-2 px-2 shadow-[0_-8px_25px_rgba(55,48,100,0.08)]" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));">
             <a href="{{ route('guide.dashboard') }}" 
                class="flex flex-col items-center py-1.5 px-3 rounded-2xl transition-all {{ request()->routeIs('guide.dashboard') ? 'text-[#6C63FF] font-bold bg-[#ECEBFC]' : 'text-[#77768C] hover:text-[#29283D]' }}">
                 <svg class="w-5 h-5 mb-0.5 {{ request()->routeIs('guide.dashboard') ? 'text-[#6C63FF]' : 'text-[#77768C]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>

@@ -246,7 +246,7 @@ class GuidePortalController extends Controller
 
         try {
             $result = $bookingService->createDirectTour($validated, $queueService, auth()->user());
-            return back()->with('success', "⚡ Tour Langsung ({$result['booking']->booking_code}) berhasil dimulai. Selamat bertugas!");
+            return back()->with('success', "Tour Langsung ({$result['booking']->booking_code}) berhasil dimulai. Selamat bertugas!");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
