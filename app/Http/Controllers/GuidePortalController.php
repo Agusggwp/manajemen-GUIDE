@@ -35,18 +35,24 @@ class GuidePortalController extends Controller
             ->where('attendance_date', $today)
             ->first();
 
-        // Today's assignments
+        // Today's assignments: prioritaskan yang belum selesai (ON_GOING, ASSIGNED) di paling atas, COMPLETED di bawah
         $todayAssignments = GuideAssignment::with('booking.tourPackage')
             ->where('guide_id', $guide->id)
-            ->whereHas('booking', fn($q) => $q->where('booking_date', $today))
+            ->whereHas('booking', fn($q) => $q->whereDate('booking_date', $today))
             ->where('status', '!=', 'CANCELLED')
+            ->orderByRaw("CASE 
+                WHEN status = 'ON_GOING' THEN 1 
+                WHEN status = 'ASSIGNED' THEN 2 
+                WHEN status = 'COMPLETED' THEN 3 
+                ELSE 4 
+            END ASC")
             ->orderBy('assigned_at', 'asc')
             ->get();
 
         // Upcoming assignments (future dates)
         $upcomingAssignments = GuideAssignment::with('booking.tourPackage')
             ->where('guide_id', $guide->id)
-            ->whereHas('booking', fn($q) => $q->where('booking_date', '>', $today))
+            ->whereHas('booking', fn($q) => $q->whereDate('booking_date', '>', $today))
             ->where('status', '!=', 'CANCELLED')
             ->orderBy('assigned_at', 'asc')
             ->take(5)
@@ -145,6 +151,12 @@ class GuidePortalController extends Controller
         $query = GuideAssignment::with('booking.tourPackage')
             ->where('guide_id', $guide->id)
             ->where('status', '!=', 'CANCELLED')
+            ->orderByRaw("CASE 
+                WHEN status = 'ON_GOING' THEN 1 
+                WHEN status = 'ASSIGNED' THEN 2 
+                WHEN status = 'COMPLETED' THEN 3 
+                ELSE 4 
+            END ASC")
             ->orderBy('assigned_at', 'desc');
 
         if ($request->filled('status')) {

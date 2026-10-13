@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Booking;
 use App\Models\Expense;
 use App\Models\Guide;
+use App\Models\GuideAssignment;
 use App\Models\TourPackage;
 use App\Models\User;
 use App\Services\GuideAttendanceService;
@@ -251,5 +252,83 @@ class DashboardAndAttendanceTest extends TestCase
         $this->assertStringContainsString('STF-TEST-001', $contentCsv);
         $this->assertStringContainsString('Budi Staff', $contentCsv);
         $this->assertStringContainsString('BK-REV-01', $contentCsv);
+    }
+
+    public function test_guide_dashboard_orders_unfinished_assignments_first(): void
+    {
+        $today = Carbon::today()->toDateString();
+        
+        $package = TourPackage::create([
+            'name' => 'Paket Bedugul',
+            'duration_days' => 1,
+            'default_price' => 500000,
+            'pricing_type' => 'TIERED',
+            'status' => 'ACTIVE',
+        ]);
+
+        // Booking 1: earlier assigned, but already COMPLETED
+        $booking1 = Booking::create([
+            'booking_code' => 'BK-DONE',
+            'tour_package_id' => $package->id,
+            'customer_name' => 'Tamu Pagi',
+            'guest_count' => 2,
+            'booking_date' => $today,
+            'start_time' => '08:00',
+            'end_time' => '12:00',
+            'location' => 'Bedugul',
+            'total_price' => 1000000,
+            'guide_fee_total' => 100000,
+            'operational_cost' => 50000,
+            'company_profit' => 850000,
+            'status' => 'COMPLETED',
+        ]);
+        $assignCompleted = GuideAssignment::create([
+            'booking_id' => $booking1->id,
+            'guide_id' => $this->guide->id,
+            'guest_count' => 2,
+            'fee_type' => 'TIERED',
+            'fee_rate' => 50000,
+            'fee_amount' => 100000,
+            'queue_position' => 1,
+            'assigned_at' => Carbon::now()->subHours(4),
+            'status' => 'COMPLETED',
+        ]);
+
+        // Booking 2: later assigned, but still ASSIGNED (unfinished)
+        $booking2 = Booking::create([
+            'booking_code' => 'BK-PENDING',
+            'tour_package_id' => $package->id,
+            'customer_name' => 'Tamu Siang',
+            'guest_count' => 3,
+            'booking_date' => $today,
+            'start_time' => '13:00',
+            'end_time' => '17:00',
+            'location' => 'Kintamani',
+            'total_price' => 1500000,
+            'guide_fee_total' => 150000,
+            'operational_cost' => 50000,
+            'company_profit' => 1300000,
+            'status' => 'FULLY_ASSIGNED',
+        ]);
+        $assignPending = GuideAssignment::create([
+            'booking_id' => $booking2->id,
+            'guide_id' => $this->guide->id,
+            'guest_count' => 3,
+            'fee_type' => 'TIERED',
+            'fee_rate' => 50000,
+            'fee_amount' => 150000,
+            'queue_position' => 2,
+            'assigned_at' => Carbon::now()->subHours(2),
+            'status' => 'ASSIGNED',
+        ]);
+
+        $response = $this->actingAs($this->guideUser)->get(route('guide.dashboard'));
+        $response->assertStatus(200);
+
+        // Verify that in todayAssignments passed to view, unfinished is first
+        $todayAssignments = $response->viewData('todayAssignments');
+        $this->assertCount(2, $todayAssignments);
+        $this->assertEquals($assignPending->id, $todayAssignments->first()->id);
+        $this->assertEquals($assignCompleted->id, $todayAssignments->last()->id);
     }
 }

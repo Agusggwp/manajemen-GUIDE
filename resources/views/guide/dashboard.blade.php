@@ -289,11 +289,19 @@
     <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
             <h3 class="text-xs font-bold uppercase tracking-wider text-[#29283D]">Jadwal Tugas Hari Ini</h3>
-            <span class="text-[10px] text-[#77768C] font-semibold">{{ $todayAssignments->count() }} Tugas</span>
+            <span class="text-[10px] text-[#77768C] font-semibold">
+                {{ $todayAssignments->count() }} Tugas
+                @php
+                    $pendingCount = $todayAssignments->whereIn('status', ['ON_GOING', 'ASSIGNED'])->count();
+                @endphp
+                @if($pendingCount > 0)
+                    &bull; <span class="text-[#6C63FF] font-bold">{{ $pendingCount }} Belum Selesai</span>
+                @endif
+            </span>
         </div>
 
         @forelse($todayAssignments as $job)
-        <div class="clay-card p-4 space-y-3 {{ $job->status === 'ON_GOING' ? 'ring-2 ring-[#6C63FF]/40 border-[#6C63FF]/30' : '' }}">
+        <div class="clay-card p-4 space-y-3 {{ $job->status === 'ON_GOING' ? 'ring-2 ring-[#6C63FF]/40 border-[#6C63FF]/30' : ($job->status === 'COMPLETED' ? 'opacity-80 bg-white/75' : '') }}">
             <div class="flex items-start justify-between">
                 <div>
                     <span class="text-[10px] font-mono font-bold text-[#6C63FF] bg-[#6C63FF]/10 px-2 py-0.5 rounded-md">
