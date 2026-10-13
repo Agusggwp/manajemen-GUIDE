@@ -5,73 +5,76 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+    <div class="clay-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div>
-            <h2 class="text-base font-bold text-slate-900">Rekapitulasi Rotasi Antrean Guide</h2>
-            <p class="text-xs text-slate-500">Membuktikan keadilan rotasi continuous queue tanpa reset harian</p>
+            <h2 class="text-base font-bold text-[#29283D]">Rekapitulasi Rotasi Antrean Guide</h2>
+            <p class="text-xs text-[#77768C] mt-1">Membuktikan keadilan rotasi continuous queue tanpa reset harian</p>
         </div>
 
         <form action="{{ route('reports.queue') }}" method="GET" class="flex flex-wrap items-center gap-2 text-xs">
-            <input type="date" name="start_date" value="{{ $startDate }}" class="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-md">
-            <span class="text-slate-400">s/d</span>
-            <input type="date" name="end_date" value="{{ $endDate }}" class="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-md">
-            <button type="submit" class="px-3 py-1.5 bg-slate-800 text-white rounded-md font-semibold">Filter</button>
+            <input type="date" name="start_date" value="{{ $startDate }}" class="clay-input text-xs py-1.5 px-3">
+            <span class="text-[#77768C] font-bold">s/d</span>
+            <input type="date" name="end_date" value="{{ $endDate }}" class="clay-input text-xs py-1.5 px-3">
+            <button type="submit" class="clay-btn-primary px-3.5 py-1.5 text-xs font-bold">Filter</button>
             <a href="{{ route('reports.queue', ['start_date' => $startDate, 'end_date' => $endDate, 'export' => 'csv']) }}" 
-               class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-semibold">
-                Ekspor Excel / CSV
+               class="clay-btn-turquoise px-3.5 py-1.5 text-xs font-bold inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#29283D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Ekspor Excel / CSV</span>
             </a>
-            <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-semibold">
+            <button type="button" onclick="window.print()" class="clay-btn-secondary px-3.5 py-1.5 text-xs font-bold">
                 Cetak Laporan
             </button>
         </form>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
+    <div class="clay-card p-0 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead class="bg-[#F4F3FA] text-[#77768C] font-bold border-b border-[#E8E6F0]">
                     <tr>
-                        <th class="px-4 py-3.5">Waktu Penugasan</th>
-                        <th class="px-4 py-3.5 text-center">Posisi Antrean</th>
-                        <th class="px-4 py-3.5">Guide Terpilih</th>
-                        <th class="px-4 py-3.5">Kode Booking</th>
-                        <th class="px-4 py-3.5 text-center">Jumlah Tamu</th>
-                        <th class="px-4 py-3.5">Tipe Penugasan</th>
-                        <th class="px-4 py-3.5">Catatan Rotasi</th>
+                        <th class="px-5 py-3.5">Waktu Penugasan</th>
+                        <th class="px-5 py-3.5 text-center">Posisi Antrean</th>
+                        <th class="px-5 py-3.5">Guide Terpilih</th>
+                        <th class="px-5 py-3.5">Kode Booking</th>
+                        <th class="px-5 py-3.5 text-center">Jumlah Tamu</th>
+                        <th class="px-5 py-3.5">Tipe Penugasan</th>
+                        <th class="px-5 py-3.5">Catatan Rotasi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#E8E6F0]">
                     @forelse($histories as $qh)
-                    <tr class="hover:bg-slate-50/70 transition-colors">
-                        <td class="px-4 py-3.5 font-medium text-slate-900">
+                    <tr class="hover:bg-purple-50/30 transition-colors">
+                        <td class="px-5 py-3.5 font-bold text-[#29283D]">
                             {{ $qh->created_at->format('d/m/Y H:i:s') }}
                         </td>
-                        <td class="px-4 py-3.5 text-center font-bold">
-                            <span class="px-2 py-0.5 rounded bg-[#14433b] text-[#21c9a4]">
+                        <td class="px-5 py-3.5 text-center font-bold">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-[#6C63FF] text-white text-xs font-black shadow-xs">
                                 #{{ $qh->next_position }}
                             </span>
                         </td>
-                        <td class="px-4 py-3.5 font-bold text-slate-900">
+                        <td class="px-5 py-3.5 font-bold text-[#29283D]">
                             {{ $qh->selectedGuide?->nama ?? '-' }}
                         </td>
-                        <td class="px-4 py-3.5 text-slate-700 font-mono font-semibold">
+                        <td class="px-5 py-3.5 text-[#29283D] font-mono font-bold">
                             {{ $qh->booking?->booking_code ?? '-' }}
                         </td>
-                        <td class="px-4 py-3.5 text-center font-extrabold text-slate-800">
+                        <td class="px-5 py-3.5 text-center font-black text-[#29283D]">
                             {{ $qh->booking?->guest_count ?? '-' }} pax
                         </td>
-                        <td class="px-4 py-3.5">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $qh->type === 'AUTO' ? 'bg-[#e6faf5] text-[#14433b]' : 'bg-slate-100 text-slate-700' }}">
+                        <td class="px-5 py-3.5">
+                            <span class="clay-badge {{ $qh->type === 'AUTO' ? 'bg-purple-50 text-[#6C63FF] border-purple-200' : 'bg-[#F4F3FA] text-[#77768C] border-[#E8E6F0]' }}">
                                 {{ $qh->type === 'AUTO' ? 'Otomatis' : 'Manual' }}
                             </span>
                         </td>
-                        <td class="px-4 py-3.5 text-slate-500">
+                        <td class="px-5 py-3.5 text-[#77768C] font-medium">
                             {{ $qh->notes ?? '-' }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-slate-400">Tidak ada riwayat rotasi antrean pada periode ini.</td>
+                        <td colspan="7" class="px-5 py-12 text-center text-[#77768C]">Tidak ada riwayat rotasi antrean pada periode ini.</td>
                     </tr>
                     @endforelse
                 </tbody>

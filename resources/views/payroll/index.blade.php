@@ -6,41 +6,44 @@
 @section('content')
 <div class="space-y-6">
     <!-- Top Summary Metrics (Requirement 31) -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-2xs">
-            <span class="text-xs font-medium text-slate-500 block">Total Hak Fee Seluruh Guide</span>
-            <span class="text-2xl font-bold text-slate-900 block mt-1">Rp {{ number_format($totalFeeAll, 0, ',', '.') }}</span>
-            <span class="text-[11px] text-slate-400 mt-1 block">Akumulasi seluruh tour guide</span>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="clay-card p-6">
+            <span class="text-xs font-bold text-[#77768C] block uppercase tracking-wider">Total Hak Fee Seluruh Guide</span>
+            <span class="text-2xl font-extrabold text-[#29283D] block mt-1">Rp {{ number_format($totalFeeAll, 0, ',', '.') }}</span>
+            <span class="text-[11px] text-[#77768C] mt-1 block">Akumulasi seluruh tour guide</span>
         </div>
 
-        <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-2xs">
-            <span class="text-xs font-medium text-slate-500 block">Total Fee Terbayar (Paid)</span>
-            <span class="text-2xl font-bold text-emerald-600 block mt-1">Rp {{ number_format($totalPaidAll, 0, ',', '.') }}</span>
-            <span class="text-[11px] text-emerald-600/70 mt-1 block">Telah ditransfer ke guide</span>
+        <div class="clay-card p-6">
+            <span class="text-xs font-bold text-[#0f766e] block uppercase tracking-wider">Total Fee Terbayar (Paid)</span>
+            <span class="text-2xl font-extrabold text-[#72D6C9] block mt-1">Rp {{ number_format($totalPaidAll, 0, ',', '.') }}</span>
+            <span class="text-[11px] text-[#77768C] mt-1 block">Telah ditransfer ke guide</span>
         </div>
 
-        <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-2xs">
-            <span class="text-xs font-medium text-slate-500 block">Sisa Fee Belum Dibayar (Remaining)</span>
-            <span class="text-2xl font-bold text-amber-600 block mt-1">Rp {{ number_format($totalRemainingAll, 0, ',', '.') }}</span>
-            <span class="text-[11px] text-amber-600/70 mt-1 block">Kewajiban outstanding</span>
+        <div class="clay-card p-6">
+            <span class="text-xs font-bold text-[#b45309] block uppercase tracking-wider">Sisa Fee Belum Dibayar (Remaining)</span>
+            <span class="text-2xl font-extrabold text-[#FFD166] block mt-1">Rp {{ number_format($totalRemainingAll, 0, ',', '.') }}</span>
+            <span class="text-[11px] text-[#77768C] mt-1 block">Kewajiban outstanding</span>
         </div>
     </div>
 
     <!-- Payroll Table -->
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="clay-table-wrapper">
+        <div class="p-5 md:p-6 border-b border-[#E8E6F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h3 class="text-sm font-bold text-slate-900">Rekapitulasi Fee per Guide</h3>
-                <p class="text-xs text-slate-500">Daftar akumulasi pekerjaan dan status pembayaran gaji guide</p>
+                <h3 class="text-lg font-extrabold text-[#29283D] flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-sm">💵</span>
+                    <span>Rekapitulasi Fee per Guide</span>
+                </h3>
+                <p class="text-xs text-[#77768C] mt-0.5">Daftar akumulasi pekerjaan dan status pembayaran gaji guide</p>
             </div>
-            <a href="{{ route('payroll.payments') }}" class="text-xs font-semibold text-[#14433b] hover:text-[#21c9a4]">
+            <a href="{{ route('payroll.payments') }}" class="clay-btn clay-btn-secondary text-xs px-3.5 py-2 font-bold inline-flex items-center gap-1.5 self-start sm:self-auto">
                 Lihat Riwayat Pembayaran &rarr;
             </a>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <thead class="bg-[#F4F3FA] text-[#77768C] font-bold border-b border-[#E8E6F0]">
                     <tr>
                         <th class="px-4 py-3.5 text-center">No Antrean</th>
                         <th class="px-4 py-3.5">Nama & Kode Guide</th>
@@ -53,49 +56,51 @@
                         <th class="px-4 py-3.5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#E8E6F0]">
                     @forelse($payrolls as $row)
-                    <tr class="hover:bg-slate-50/70 transition-colors">
-                        <td class="px-4 py-3.5 text-center font-bold text-slate-800">
-                            #{{ $row->guide->queue_number }}
+                    <tr class="hover:bg-[#F4F3FA]/70 transition-colors">
+                        <td class="px-4 py-3.5 text-center font-extrabold text-[#6C63FF]">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-[#6C63FF]/15 text-[#6C63FF] font-extrabold">
+                                #{{ $row->guide->queue_number }}
+                            </span>
                         </td>
 
                         <td class="px-4 py-3.5">
-                            <div class="font-bold text-slate-900 text-sm">{{ $row->guide->nama }}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">{{ $row->guide->kode_guide }} &bull; {{ $row->guide->nomor_telepon }}</div>
+                            <div class="font-extrabold text-[#29283D] text-sm">{{ $row->guide->nama }}</div>
+                            <div class="text-[10px] text-[#77768C] font-mono mt-0.5">{{ $row->guide->kode_guide }} &bull; {{ $row->guide->nomor_telepon }}</div>
                         </td>
 
-                        <td class="px-4 py-3.5 text-center font-semibold text-slate-700">
+                        <td class="px-4 py-3.5 text-center font-bold text-[#29283D]">
                             {{ $row->total_bookings }} booking
                         </td>
 
-                        <td class="px-4 py-3.5 text-center font-bold text-slate-800">
+                        <td class="px-4 py-3.5 text-center font-bold text-[#6C63FF]">
                             {{ $row->total_guests }} pax
                         </td>
 
-                        <td class="px-4 py-3.5 text-right font-bold text-slate-900">
+                        <td class="px-4 py-3.5 text-right font-extrabold text-[#29283D]">
                             Rp {{ number_format($row->total_fee, 0, ',', '.') }}
                         </td>
 
-                        <td class="px-4 py-3.5 text-right font-medium text-emerald-700">
+                        <td class="px-4 py-3.5 text-right font-bold text-[#0f766e]">
                             Rp {{ number_format($row->total_paid, 0, ',', '.') }}
                         </td>
 
-                        <td class="px-4 py-3.5 text-right font-bold text-amber-700">
+                        <td class="px-4 py-3.5 text-right font-extrabold text-[#b45309]">
                             Rp {{ number_format($row->remaining, 0, ',', '.') }}
                         </td>
 
                         <td class="px-4 py-3.5 text-center">
                             @if($row->status === 'PAID')
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#72D6C9]/20 text-[#0f766e] border border-[#72D6C9]/40">
                                     LUNAS
                                 </span>
                             @elseif($row->status === 'PARTIAL')
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#FFD166]/25 text-[#b45309] border border-[#FFD166]/50">
                                     SEBAGIAN
                                 </span>
                             @else
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#FF8A65]/15 text-[#FF8A65] border border-[#FF8A65]/30">
                                     BELUM DIBAYAR
                                 </span>
                             @endif
@@ -103,14 +108,17 @@
 
                         <td class="px-4 py-3.5 text-right">
                             <a href="{{ route('payroll.show', $row->guide) }}" 
-                               class="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-[#14433b] hover:bg-[#1b584d] text-white transition-colors">
+                               class="clay-btn clay-btn-primary px-3 py-1 text-xs font-bold inline-flex items-center">
                                 Rincian & Bayar
                             </a>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-4 py-8 text-center text-slate-400">Belum ada data payroll guide.</td>
+                        <td colspan="9" class="px-4 py-10 text-center text-[#77768C]">
+                            <div class="text-3xl mb-2">💵</div>
+                            <p class="font-bold">Belum ada data payroll guide.</p>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>

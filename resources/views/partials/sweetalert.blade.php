@@ -6,7 +6,7 @@
                 icon: 'success',
                 title: 'Berhasil!',
                 text: {!! json_encode(session('success')) !!},
-                confirmButtonColor: '#14433b',
+                confirmButtonColor: '#6C63FF',
                 confirmButtonText: 'OK',
                 timer: 4000,
                 timerProgressBar: true
@@ -24,7 +24,7 @@
                 icon: 'error',
                 title: 'Perhatian / Terjadi Kesalahan',
                 text: {!! json_encode(session('error')) !!},
-                confirmButtonColor: '#14433b',
+                confirmButtonColor: '#6C63FF',
                 confirmButtonText: 'Tutup'
             });
         }
@@ -40,7 +40,7 @@
                 icon: 'error',
                 title: 'Validasi Gagal',
                 html: {!! json_encode(implode('<br>', $errors->all())) !!},
-                confirmButtonColor: '#14433b',
+                confirmButtonColor: '#6C63FF',
                 confirmButtonText: 'Periksa Kembali'
             });
         }

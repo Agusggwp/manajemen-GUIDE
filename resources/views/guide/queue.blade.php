@@ -8,60 +8,61 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-base font-bold text-slate-900">Papan Antrean Guide</h2>
-            <p class="text-xs text-slate-500">Pantau posisi antrean Anda & status rekan kerja yang sedang ON</p>
+            <h2 class="text-base font-extrabold text-[#29283D] font-display">Papan Antrean Guide</h2>
+            <p class="text-xs text-[#77768C]">Pantau posisi antrean Anda & status rekan kerja yang sedang ON</p>
         </div>
         <div class="text-right">
-            <span class="text-[10px] text-slate-400 block">Tanggal:</span>
-            <span class="text-xs font-semibold text-slate-700">{{ \Carbon\Carbon::parse($today)->format('d M Y') }}</span>
+            <span class="text-[10px] text-[#77768C] block font-medium">Tanggal:</span>
+            <span class="text-xs font-bold text-[#29283D]">{{ \Carbon\Carbon::parse($today)->format('d M Y') }}</span>
         </div>
     </div>
 
     <!-- My Realtime Queue Status Card -->
-    <div class="bg-gradient-to-br from-[#14433b] to-[#1c5d52] rounded-2xl p-5 text-white shadow-md relative overflow-hidden">
-        <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/5 pointer-events-none"></div>
+    <div class="clay-card-primary p-5 relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
+        <div class="absolute -left-10 -top-10 w-28 h-28 rounded-full bg-[#FFD166]/15 pointer-events-none blur-lg"></div>
 
-        <div class="flex items-start justify-between">
+        <div class="flex items-start justify-between relative z-10">
             <div>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300">STATUS ANTREAN ANDA</span>
-                <div class="text-2xl font-extrabold mt-0.5 flex items-center gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-white/80">STATUS ANTREAN ANDA</span>
+                <div class="text-2xl font-black mt-0.5 flex items-center gap-2 font-display text-white">
                     <span>#{{ $guide->queue_number }}</span>
-                    <span class="text-sm font-semibold text-emerald-100">({{ $guide->nama }})</span>
+                    <span class="text-sm font-semibold text-white/90">({{ $guide->nama }})</span>
                 </div>
             </div>
 
             @if($isMyTurnNext)
-                <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-[#21c9a4] text-[#14433b] shadow-sm flex items-center gap-1 animate-bounce">
+                <span class="px-3 py-1 rounded-full text-xs font-black bg-[#FFD166] text-[#29283D] shadow-md flex items-center gap-1 animate-bounce">
                     <span>⭐</span> GILIRAN BERIKUTNYA!
                 </span>
             @elseif($myInfo && $myInfo->is_on_tour)
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-400/20 text-blue-200 border border-blue-300/30">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 backdrop-blur-xs">
                     Sedang On Tour
                 </span>
             @elseif($myInfo && $myInfo->is_available)
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-400/20 text-emerald-200 border border-emerald-400/30">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-[#72D6C9]/25 text-[#72D6C9] border border-[#72D6C9]/40 backdrop-blur-xs">
                     Standby (Antrean #{{ $guidesAheadCount + 1 }})
                 </span>
             @elseif($myInfo && $myInfo->is_checked_out)
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-400/20 text-slate-300">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white/70">
                     Sudah Check-out
                 </span>
             @else
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-200 border border-amber-300/30">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-[#FF8A65]/30 text-white border border-[#FF8A65]/50">
                     Belum Check-In
                 </span>
             @endif
         </div>
 
-        <div class="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-3 text-xs">
-            <div class="bg-white/10 rounded-xl p-3 backdrop-blur-xs">
-                <span class="text-[10px] text-emerald-200 block">Penugasan Terakhir:</span>
-                <span class="font-bold text-sm text-white">Posisi #{{ $lastPosition }}</span>
+        <div class="mt-4 pt-4 border-t border-white/15 grid grid-cols-2 gap-3 text-xs relative z-10">
+            <div class="bg-white/15 rounded-2xl p-3 backdrop-blur-xs border border-white/10 shadow-inner">
+                <span class="text-[10px] text-white/80 block font-medium">Penugasan Terakhir:</span>
+                <span class="font-extrabold text-sm text-white">Posisi #{{ $lastPosition }}</span>
             </div>
 
-            <div class="bg-white/10 rounded-xl p-3 backdrop-blur-xs">
-                <span class="text-[10px] text-emerald-200 block">Giliran Terdepan Saat Ini:</span>
-                <span class="font-bold text-sm text-[#21c9a4]">
+            <div class="bg-white/15 rounded-2xl p-3 backdrop-blur-xs border border-white/10 shadow-inner">
+                <span class="text-[10px] text-white/80 block font-medium">Giliran Terdepan Saat Ini:</span>
+                <span class="font-extrabold text-sm text-[#FFD166]">
                     @if($nextGuide)
                         #{{ $nextGuide->queue_number }} {{ $nextGuide->nama }}
                     @else
@@ -72,19 +73,19 @@
         </div>
 
         @if($isMyTurnNext)
-            <div class="mt-3.5 p-2.5 rounded-xl bg-[#21c9a4]/20 border border-[#21c9a4]/40 text-emerald-100 text-xs flex items-center gap-2">
+            <div class="mt-3.5 p-3 rounded-2xl bg-[#FFD166]/25 border border-[#FFD166]/50 text-white text-xs flex items-center gap-2 backdrop-blur-xs">
                 <span class="text-base">📢</span>
                 <span><strong>Siap-siap!</strong> Anda berada di posisi terdepan untuk menerima penugasan tour berikutnya.</span>
             </div>
         @elseif($myInfo && $myInfo->is_available && $guidesAheadCount > 0)
-            <div class="mt-3.5 p-2.5 rounded-xl bg-white/10 text-emerald-100 text-xs flex items-center gap-2">
+            <div class="mt-3.5 p-3 rounded-2xl bg-white/15 text-white text-xs flex items-center gap-2 backdrop-blur-xs border border-white/10">
                 <span class="text-base">⏳</span>
                 <span>Ada <strong>{{ $guidesAheadCount }} guide</strong> lagi sebelum giliran Anda tiba.</span>
             </div>
         @elseif(!($todayAttendance ?? null) || ($todayAttendance->status ?? null) !== 'CHECKED_IN')
-            <div class="mt-3.5 p-2.5 rounded-xl bg-amber-400/20 border border-amber-300/30 text-amber-100 text-xs flex items-center justify-between">
-                <span>Check-in sekarang agar masuk ke dalam antrean harian.</span>
-                <a href="{{ route('guide.dashboard') }}" class="px-2.5 py-1 bg-amber-400 text-slate-900 rounded-lg font-bold text-[11px]">
+            <div class="mt-3.5 p-3 rounded-2xl bg-white/20 border border-white/30 text-white text-xs flex items-center justify-between backdrop-blur-xs">
+                <span class="font-medium">Check-in sekarang agar masuk ke dalam antrean harian.</span>
+                <a href="{{ route('guide.dashboard') }}" class="px-3 py-1 bg-[#FFD166] text-[#29283D] rounded-xl font-bold text-[11px] shadow-sm hover:scale-105 transition">
                     Check-in
                 </a>
             </div>
@@ -92,66 +93,66 @@
     </div>
 
     <!-- Live Guide Status Counters -->
-    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+    <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
         <button type="button" @click="filter = 'all'"
-                :class="filter === 'all' ? 'border-[#14433b] bg-emerald-50 text-[#14433b] ring-1 ring-[#14433b]' : 'bg-white text-slate-600 border-slate-200'"
-                class="p-2.5 rounded-xl border transition shadow-2xs">
-            <span class="text-[10px] text-slate-400 block font-medium">Semua ON</span>
-            <span class="text-base font-extrabold">{{ $onGuides->count() }}</span>
+                :class="filter === 'all' ? 'border-[#6C63FF] bg-[#6C63FF]/10 text-[#6C63FF] shadow-sm ring-2 ring-[#6C63FF]/20' : 'bg-white text-[#77768C] border-[#E8E6F0] shadow-2xs'"
+                class="p-3 rounded-2xl border transition-all duration-200">
+            <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Semua ON</span>
+            <span class="text-lg font-extrabold font-display block mt-0.5">{{ $onGuides->count() }}</span>
         </button>
 
         <button type="button" @click="filter = 'standby'"
-                :class="filter === 'standby' ? 'border-[#14433b] bg-emerald-50 text-[#14433b] ring-1 ring-[#14433b]' : 'bg-white text-slate-600 border-slate-200'"
-                class="p-2.5 rounded-xl border transition shadow-2xs">
-            <span class="text-[10px] text-slate-400 block font-medium">Standby (Siap)</span>
-            <span class="text-base font-extrabold text-emerald-700">{{ $standbyCount }}</span>
+                :class="filter === 'standby' ? 'border-[#72D6C9] bg-[#72D6C9]/15 text-[#147a6f] shadow-sm ring-2 ring-[#72D6C9]/25' : 'bg-white text-[#77768C] border-[#E8E6F0] shadow-2xs'"
+                class="p-3 rounded-2xl border transition-all duration-200">
+            <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Standby (Siap)</span>
+            <span class="text-lg font-extrabold text-[#147a6f] font-display block mt-0.5">{{ $standbyCount }}</span>
         </button>
 
         <button type="button" @click="filter = 'ontour'"
-                :class="filter === 'ontour' ? 'border-[#14433b] bg-emerald-50 text-[#14433b] ring-1 ring-[#14433b]' : 'bg-white text-slate-600 border-slate-200'"
-                class="p-2.5 rounded-xl border transition shadow-2xs">
-            <span class="text-[10px] text-slate-400 block font-medium">Sedang Tour</span>
-            <span class="text-base font-extrabold text-blue-700">{{ $onTourCount }}</span>
+                :class="filter === 'ontour' ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm ring-2 ring-blue-300/30' : 'bg-white text-[#77768C] border-[#E8E6F0] shadow-2xs'"
+                class="p-3 rounded-2xl border transition-all duration-200">
+            <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Sedang Tour</span>
+            <span class="text-lg font-extrabold text-blue-700 font-display block mt-0.5">{{ $onTourCount }}</span>
         </button>
     </div>
 
     <!-- Active Guides List -->
     <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Daftar Rekan Guide Hari Ini</h3>
-            <span class="text-[10px] text-slate-400">Total: {{ $guideCards->count() }} Terdaftar</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#29283D]">Daftar Rekan Guide Hari Ini</h3>
+            <span class="text-[10px] text-[#77768C] font-semibold">Total: {{ $guideCards->count() }} Terdaftar</span>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2.5">
             @forelse($guideCards as $row)
             <div x-show="filter === 'all' || (filter === 'standby' && {{ $row->is_available ? 'true' : 'false' }}) || (filter === 'ontour' && {{ $row->is_on_tour ? 'true' : 'false' }})"
-                 class="bg-white rounded-xl border {{ $row->is_me ? 'border-[#21c9a4] ring-2 ring-[#21c9a4]/40 bg-[#f4fbf9]' : 'border-slate-200' }} p-3.5 shadow-2xs transition">
+                 class="clay-card p-4 transition-all duration-200 {{ $row->is_me ? 'ring-2 ring-[#6C63FF]/30 border-[#6C63FF]/40 bg-[#6C63FF]/5' : '' }}">
                 
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl {{ $row->is_next ? 'bg-[#21c9a4] text-[#14433b]' : ($row->is_checked_in ? 'bg-[#14433b] text-white' : 'bg-slate-100 text-slate-400') }} flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                        <div class="w-11 h-11 rounded-2xl {{ $row->is_next ? 'bg-[#FFD166] text-[#29283D] shadow-sm' : ($row->is_checked_in ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/20' : 'bg-slate-100 text-slate-400') }} flex items-center justify-center font-extrabold text-sm shrink-0">
                             #{{ $row->queue_number }}
                         </div>
 
                         <div>
                             <div class="flex items-center gap-1.5">
-                                <span class="font-bold text-sm text-slate-900">{{ $row->nama }}</span>
+                                <span class="font-bold text-sm text-[#29283D] font-display">{{ $row->nama }}</span>
                                 @if($row->is_me)
-                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#14433b] text-white">Anda</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#6C63FF] text-white">Anda</span>
                                 @endif
                                 @if($row->is_next)
-                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">⭐ Giliran Berikutnya</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFD166] text-[#29283D] border border-[#FFD166]/60">⭐ Giliran Berikutnya</span>
                                 @endif
                             </div>
 
-                            <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
-                                <span>{{ $row->kode_guide }}</span>
+                            <div class="text-[11px] text-[#77768C] flex items-center gap-2 mt-0.5">
+                                <span class="font-mono text-[10px]">{{ $row->kode_guide }}</span>
                                 @if($row->is_checked_in)
                                     <span>•</span>
-                                    <span class="text-emerald-700 font-medium">Masuk: {{ $row->check_in_time }} WITA</span>
+                                    <span class="text-[#147a6f] font-semibold">Masuk: {{ $row->check_in_time }} WITA</span>
                                 @elseif($row->is_checked_out)
                                     <span>•</span>
-                                    <span class="text-slate-500">Keluar: {{ $row->check_out_time }} WITA</span>
+                                    <span class="text-[#77768C]">Keluar: {{ $row->check_out_time }} WITA</span>
                                 @else
                                     <span>•</span>
                                     <span class="text-slate-400">Belum Check-In</span>
@@ -163,46 +164,46 @@
                     <!-- Status Badge -->
                     <div class="text-right">
                         @if($row->is_on_tour)
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
                                 Sedang Tour
                             </span>
                         @elseif($row->is_available)
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#72D6C9]/20 text-[#147a6f] border border-[#72D6C9]/40">
                                 Standby (Siap)
                             </span>
                         @elseif($row->is_checked_out)
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-[#77768C]">
                                 Selesai
                             </span>
                         @elseif($row->status === 'OFF')
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
                                 Libur (OFF)
                             </span>
                         @else
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#FFD166]/20 text-[#8a6800] border border-[#FFD166]/40">
                                 Belum Hadir
                             </span>
                         @endif
 
-                        <div class="text-[10px] text-slate-400 mt-1">
+                        <div class="text-[10px] text-[#77768C] mt-1 font-medium">
                             {{ $row->today_jobs }} tur • {{ $row->today_guests }} pax
                         </div>
                     </div>
                 </div>
 
                 @if($row->nomor_telepon && !$row->is_me)
-                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                    <span class="text-slate-500">Kontak Koordinasi:</span>
+                <div class="mt-3 pt-2.5 border-t border-[#E8E6F0] flex items-center justify-between text-[11px]">
+                    <span class="text-[#77768C]">Kontak Koordinasi:</span>
                     <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $row->nomor_telepon) }}" target="_blank"
-                       class="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1">
+                       class="text-[#6C63FF] hover:text-[#554cd8] font-bold flex items-center gap-1 transition">
                         <span>WhatsApp ({{ $row->nomor_telepon }})</span>
                     </a>
                 </div>
                 @endif
             </div>
             @empty
-            <div class="bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-400 text-xs shadow-2xs">
+            <div class="clay-card p-6 text-center text-[#77768C] text-xs">
                 Belum ada data guide.
             </div>
             @endforelse
@@ -210,3 +211,4 @@
     </div>
 </div>
 @endsection
+

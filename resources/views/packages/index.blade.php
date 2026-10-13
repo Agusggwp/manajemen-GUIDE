@@ -5,36 +5,41 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="clay-card p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-base font-bold text-slate-900">Katalog Paket Wisata Bali & Skema Harga</h2>
-            <p class="text-xs text-slate-500">Harga per tamu otomatis dipilih sistem berdasarkan kuota jumlah tamu booking</p>
+            <h2 class="text-xl font-extrabold text-[#29283D] flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-base">🏖️</span>
+                <span>Katalog Paket Wisata Bali & Skema Harga</span>
+            </h2>
+            <p class="text-xs text-[#77768C] mt-1">Harga per tamu otomatis dipilih sistem berdasarkan kuota jumlah tamu booking</p>
         </div>
 
         @if(auth()->user()->isAdmin())
-        <a href="{{ route('packages.create') }}" class="px-4 py-2 rounded-lg bg-[#14433b] hover:bg-[#1b584d] text-white text-xs font-bold transition-colors shadow-xs">
-            + Tambah Paket Baru
+        <a href="{{ route('packages.create') }}" class="clay-btn clay-btn-primary px-4 py-2 font-bold text-xs inline-flex items-center gap-1.5 self-start sm:self-auto">
+            <span>+</span> Tambah Paket Baru
         </a>
         @endif
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @forelse($packages as $pkg)
-        <div class="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
-            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div class="clay-card p-6 space-y-4">
+            <div class="flex items-start justify-between border-b border-[#E8E6F0] pb-4">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">{{ $pkg->name }}</h3>
-                    <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">Durasi: {{ $pkg->duration }}</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold {{ $pkg->status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                    <h3 class="text-lg font-extrabold text-[#29283D]">{{ $pkg->name }}</h3>
+                    <div class="flex flex-wrap items-center gap-2 mt-2">
+                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#F4F3FA] text-[#77768C] border border-[#E8E6F0]">
+                            Durasi: {{ $pkg->duration }}
+                        </span>
+                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold {{ $pkg->status === 'ACTIVE' ? 'bg-[#72D6C9]/20 text-[#0f766e] border border-[#72D6C9]/40' : 'bg-slate-100 text-slate-500 border border-slate-200' }}">
                             {{ $pkg->status === 'ACTIVE' ? 'Aktif' : 'Non-Aktif' }}
                         </span>
                         @if($pkg->prices->isNotEmpty())
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80">
+                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold bg-[#FFD166]/25 text-[#b45309] border border-[#FFD166]/50">
                             Paket Khusus Bertingkat
                         </span>
                         @else
-                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/25">
                             Tarif 1 Pax (Standar)
                         </span>
                         @endif
@@ -43,7 +48,7 @@
 
                 @if(auth()->user()->isAdmin())
                 <div class="flex items-center space-x-2 shrink-0">
-                    <a href="{{ route('packages.edit', $pkg) }}" class="px-2.5 py-1 text-xs font-semibold text-[#14433b] hover:text-[#1b584d] bg-[#e6faf5] hover:bg-[#d0f5ec] rounded-md transition-colors border border-[#21c9a4]/30">
+                    <a href="{{ route('packages.edit', $pkg) }}" class="clay-btn clay-btn-secondary px-3 py-1.5 text-xs font-bold inline-flex items-center">
                         Edit
                     </a>
                     <form action="{{ route('packages.destroy', $pkg) }}" method="POST"
@@ -54,7 +59,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" 
-                                class="px-2.5 py-1 text-xs font-semibold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md transition-colors cursor-pointer">
+                                class="clay-btn clay-btn-coral px-3 py-1.5 text-xs font-bold inline-flex items-center cursor-pointer">
                             Hapus
                         </button>
                     </form>
@@ -62,19 +67,19 @@
                 @endif
             </div>
 
-            <p class="text-xs text-slate-600 line-clamp-2">{{ $pkg->description ?? 'Tidak ada deskripsi.' }}</p>
+            <p class="text-xs text-[#77768C] line-clamp-2 leading-relaxed">{{ $pkg->description ?? 'Tidak ada deskripsi.' }}</p>
 
             <!-- Price Highlight Box (1 Pax Standard) -->
-            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="bg-[#F4F3FA] border border-[#E8E6F0] rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Harga per Tamu (1 Pax)</div>
-                    <div class="text-[11px] text-slate-400">
+                    <div class="text-[10px] font-extrabold text-[#77768C] uppercase tracking-wider">Harga per Tamu (1 Pax)</div>
+                    <div class="text-[11px] text-[#77768C] mt-0.5">
                         {{ $pkg->prices->isNotEmpty() ? 'Tarif dasar (berlaku jika di luar rombongan)' : 'Berlaku tetap untuk berapapun jumlah tamu' }}
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="text-base font-extrabold text-[#14433b]">Rp {{ number_format($pkg->default_price, 0, ',', '.') }}</span>
-                    <span class="text-[11px] font-medium text-slate-400">/ orang</span>
+                    <span class="text-lg font-extrabold text-[#6C63FF]">Rp {{ number_format($pkg->default_price, 0, ',', '.') }}</span>
+                    <span class="text-[11px] font-bold text-[#77768C]">/ orang</span>
                 </div>
             </div>
 
@@ -82,27 +87,27 @@
             @if($pkg->prices->isNotEmpty())
             <div class="space-y-2 pt-1">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+                    <span class="text-[11px] font-extrabold text-[#b45309] uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#FFD166] inline-block"></span>
                         Skema Khusus Bertingkat:
                     </span>
-                    <span class="text-[10px] text-slate-400 font-medium">{{ $pkg->prices->count() }} tingkatan</span>
+                    <span class="text-[10px] text-[#77768C] font-bold">{{ $pkg->prices->count() }} tingkatan</span>
                 </div>
-                <div class="border border-slate-200 rounded-lg overflow-hidden shadow-2xs">
+                <div class="border border-[#E8E6F0] rounded-xl overflow-hidden shadow-xs">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 text-slate-500 border-b border-slate-100 font-semibold">
+                        <thead class="bg-[#F4F3FA] text-[#77768C] border-b border-[#E8E6F0] font-bold">
                             <tr>
-                                <th class="px-3 py-1.5">Rentang Tamu (Pax)</th>
-                                <th class="px-3 py-1.5 text-right">Harga per Tamu</th>
+                                <th class="px-3.5 py-2">Rentang Tamu (Pax)</th>
+                                <th class="px-3.5 py-2 text-right">Harga per Tamu</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-[#E8E6F0]">
                             @foreach($pkg->prices as $priceTier)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-3 py-1.5 font-medium text-slate-700">
+                            <tr class="hover:bg-[#F4F3FA]/50 transition-colors">
+                                <td class="px-3.5 py-2 font-bold text-[#29283D]">
                                     {{ $priceTier->min_guests }} - {{ $priceTier->max_guests }} tamu
                                 </td>
-                                <td class="px-3 py-1.5 text-right font-bold text-[#14433b]">
+                                <td class="px-3.5 py-2 text-right font-extrabold text-[#6C63FF]">
                                     Rp {{ number_format($priceTier->price_per_guest, 0, ',', '.') }}
                                 </td>
                             </tr>
@@ -114,8 +119,9 @@
             @endif
         </div>
         @empty
-        <div class="md:col-span-2 bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-xs">
-            Belum ada paket wisata terdaftar.
+        <div class="md:col-span-2 clay-card p-10 text-center text-[#77768C] text-xs">
+            <div class="text-3xl mb-2">🏖️</div>
+            <p class="font-bold">Belum ada paket wisata terdaftar.</p>
         </div>
         @endforelse
     </div>

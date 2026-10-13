@@ -44,13 +44,13 @@
     }
 }" x-init="updatePricing()">
 
-    <div class="bg-white rounded-xl border border-slate-200/80 p-6 shadow-2xs">
-        <div class="border-b border-slate-100 pb-4 mb-6 flex items-center justify-between">
+    <div class="clay-card p-6 sm:p-8">
+        <div class="border-b border-[#E8E6F0] pb-4 mb-6 flex items-center justify-between">
             <div>
-                <h2 class="text-base font-bold text-slate-900">Form Quick Booking Wisata Bali</h2>
-                <p class="text-xs text-slate-500">Estimasi harga, fee guide, dan margin keuntungan dihitung real-time</p>
+                <h2 class="text-base font-extrabold text-[#29283D] font-display">Form Quick Booking Wisata Bali</h2>
+                <p class="text-xs text-[#77768C]">Estimasi harga, fee guide, dan margin keuntungan dihitung real-time</p>
             </div>
-            <a href="{{ route('bookings.index') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-700">
+            <a href="{{ route('bookings.index') }}" class="clay-btn clay-btn-secondary py-1.5 px-3 text-xs font-bold text-[#77768C]">
                 &larr; Kembali
             </a>
         </div>
@@ -60,36 +60,36 @@
 
             <!-- Section 1: Customer Details -->
             <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">1. Data Pelanggan / Tamu</h3>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#6C63FF] mb-3">1. Data Pelanggan / Tamu</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Pelanggan / Leader <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Nama Pelanggan / Leader <span class="text-[#FF8A65]">*</span></label>
                         <input type="text" name="customer_name" required value="{{ old('customer_name') }}" placeholder="Contoh: John Smith"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Telepon / WhatsApp</label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Nomor Telepon / WhatsApp</label>
                         <input type="text" name="customer_phone" value="{{ old('customer_phone') }}" placeholder="+62 812-xxxx-xxxx"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kebangsaan / Asal</label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Kebangsaan / Asal</label>
                         <input type="text" name="nationality" value="{{ old('nationality', 'Indonesia') }}" placeholder="Indonesia, Australia, dll"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
                 </div>
             </div>
 
             <!-- Section 2: Tour & Date -->
-            <div class="pt-4 border-t border-slate-100">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">2. Detail Tour & Jadwal</h3>
+            <div class="pt-5 border-t border-[#E8E6F0]">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#6C63FF] mb-3">2. Detail Tour & Jadwal</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Paket Wisata <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Paket Wisata <span class="text-[#FF8A65]">*</span></label>
                         <select name="tour_package_id" x-model="packageId" @change="updatePricing()" required
-                                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                                class="clay-input text-xs font-bold">
                             @foreach($tourPackages as $pkg)
                                 <option value="{{ $pkg->id }}">{{ $pkg->name }} ({{ $pkg->duration }})</option>
                             @endforeach
@@ -97,91 +97,91 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Tour <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Tanggal Tour <span class="text-[#FF8A65]">*</span></label>
                         <input type="date" name="booking_date" required value="{{ old('booking_date', $today) }}"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs font-bold">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Tamu (Pax) <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Jumlah Tamu (Pax) <span class="text-[#FF8A65]">*</span></label>
                         <input type="number" name="guest_count" x-model.number="guestCount" @input="updatePricing()" min="1" max="500" required
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs font-black text-[#29283D]">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jam Mulai <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Jam Mulai <span class="text-[#FF8A65]">*</span></label>
                         <input type="time" name="start_time" required value="{{ old('start_time', '08:30') }}"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jam Selesai <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Jam Selesai <span class="text-[#FF8A65]">*</span></label>
                         <input type="time" name="end_time" required value="{{ old('end_time', '16:30') }}"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Lokasi Pickup</label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Lokasi Pickup</label>
                         <input type="text" name="pickup_location" value="{{ old('pickup_location') }}" placeholder="Nama Hotel / Villa"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Area Destinasi</label>
+                        <label class="block text-xs font-bold text-[#29283D] mb-1.5">Area Destinasi</label>
                         <input type="text" name="location" value="{{ old('location') }}" placeholder="Ubud / Kintamani / Uluwatu"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">
+                               class="clay-input text-xs">
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan Tambahan / Permintaan Khusus</label>
+                <div class="mt-4">
+                    <label class="block text-xs font-bold text-[#29283D] mb-1.5">Catatan Tambahan / Permintaan Khusus</label>
                     <textarea name="notes" rows="2" placeholder="Catatan preferensi tamu, dietary, atau rute..."
-                              class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#21c9a4] focus:outline-hidden">{{ old('notes') }}</textarea>
+                              class="clay-input text-xs">{{ old('notes') }}</textarea>
                 </div>
             </div>
 
             <!-- Requirement 39: Live Quick Calculation Panel -->
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Estimasi Kalkulasi Finansial & Guide (Live Snapshot):</div>
+            <div class="p-5 rounded-2xl bg-[#F4F3FA] border border-[#E8E6F0]">
+                <div class="text-xs font-extrabold text-[#29283D] uppercase tracking-wider mb-3">Estimasi Kalkulasi Finansial & Guide (Live Snapshot):</div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
-                        <span class="text-[10px] text-slate-400 block font-medium">Harga / Tamu</span>
-                        <span class="text-sm font-bold text-slate-900" x-text="formatRupiah(pricePerGuest)"></span>
+                    <div class="clay-card p-3">
+                        <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Harga / Tamu</span>
+                        <span class="text-sm font-black text-[#29283D] block mt-0.5" x-text="formatRupiah(pricePerGuest)"></span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
-                        <span class="text-[10px] text-slate-400 block font-medium">Total Harga</span>
-                        <span class="text-sm font-bold text-[#14433b]" x-text="formatRupiah(totalPrice)"></span>
+                    <div class="clay-card p-3">
+                        <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Total Harga</span>
+                        <span class="text-sm font-black text-[#6C63FF] block mt-0.5 font-display" x-text="formatRupiah(totalPrice)"></span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
-                        <span class="text-[10px] text-slate-400 block font-medium">Estimasi Fee Guide</span>
-                        <span class="text-sm font-bold text-amber-600" x-text="formatRupiah(estimatedGuideFee)"></span>
+                    <div class="clay-card p-3">
+                        <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Estimasi Fee Guide</span>
+                        <span class="text-sm font-black text-[#FF8A65] block mt-0.5" x-text="formatRupiah(estimatedGuideFee)"></span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
-                        <span class="text-[10px] text-slate-400 block font-medium">Estimasi Laba</span>
-                        <span class="text-sm font-bold text-emerald-600" x-text="formatRupiah(estimatedProfit)"></span>
+                    <div class="clay-card p-3">
+                        <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Estimasi Laba</span>
+                        <span class="text-sm font-black text-[#147a6f] block mt-0.5" x-text="formatRupiah(estimatedProfit)"></span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
-                        <span class="text-[10px] text-slate-400 block font-medium">Sisa Tamu</span>
-                        <span class="text-sm font-bold text-slate-700" x-text="guestCount + ' pax'"></span>
+                    <div class="clay-card p-3">
+                        <span class="text-[10px] text-[#77768C] block font-bold uppercase tracking-wider">Sisa Tamu</span>
+                        <span class="text-sm font-black text-[#29283D] block mt-0.5" x-text="guestCount + ' pax'"></span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-[#21c9a4] shadow-2xs">
-                        <span class="text-[10px] text-[#21c9a4] block font-semibold">Rekomendasi Guide</span>
-                        <span class="text-xs font-bold text-[#14433b]" x-text="recommendedGuide"></span>
+                    <div class="clay-card p-3 border border-[#FFD166]/60 bg-[#FFD166]/10">
+                        <span class="text-[10px] text-[#8a6800] block font-bold uppercase tracking-wider">Rekomendasi Guide</span>
+                        <span class="text-xs font-black text-[#29283D] truncate block mt-0.5" x-text="recommendedGuide"></span>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Buttons -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
-                <a href="{{ route('bookings.index') }}" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+            <div class="pt-4 border-t border-[#E8E6F0] flex items-center justify-end space-x-3">
+                <a href="{{ route('bookings.index') }}" class="clay-btn clay-btn-secondary px-4 py-2.5 text-xs font-bold text-[#77768C]">
                     Batal
                 </a>
-                <button type="submit" class="px-5 py-2.5 rounded-lg bg-[#14433b] hover:bg-[#1b584d] text-white text-xs font-bold tracking-wide transition-colors shadow-xs">
+                <button type="submit" class="clay-btn clay-btn-primary px-5 py-2.5 text-xs font-bold">
                     Simpan Booking & Lanjutkan ke Penugasan Guide &rarr;
                 </button>
             </div>
@@ -189,3 +189,4 @@
     </div>
 </div>
 @endsection
+

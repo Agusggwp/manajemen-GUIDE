@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="h-full bg-[#F4F3FA]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
     <title>@yield('title', 'Dashboard') - {{ $appName ?? 'ARTDEVATA' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         if (localStorage.getItem('sidebar_collapsed') === 'true') {
@@ -94,7 +94,7 @@
         }
     </style>
 </head>
-<body class="h-full antialiased font-sans text-slate-900 bg-slate-50 overflow-hidden" 
+<body class="h-full antialiased font-sans text-[#29283D] bg-[#F4F3FA] overflow-hidden" 
       x-data="{ 
           sidebarOpen: false, 
           toggleSidebar() {
@@ -102,7 +102,7 @@
               localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
           }
       }">
-    <div class="h-screen flex overflow-hidden bg-slate-50">
+    <div class="h-screen flex overflow-hidden bg-[#F4F3FA]">
         <!-- Mobile Sidebar Backdrop -->
         <div x-show="sidebarOpen" 
              x-cloak
@@ -120,12 +120,12 @@
         <!-- Main Content Wrapper -->
         <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
             <!-- Top Header (Fixed Navbar) -->
-            <header class="top-navbar h-16 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-xs z-20">
+            <header class="top-navbar h-16 shrink-0 bg-white border-b border-[#E8E6F0] flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-[0_4px_20px_rgba(55,48,100,0.04)] z-20">
                 <div class="flex items-center space-x-3">
                     <!-- Mobile Hamburger Toggle -->
                     <button @click="sidebarOpen = true" 
                             type="button"
-                            class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                            class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-[#6C63FF] hover:bg-[#ECEBFC] transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -134,25 +134,25 @@
                     <!-- Desktop Collapse/Expand Toggle Button -->
                     <button @click="toggleSidebar()" 
                             type="button" 
-                            class="hidden lg:flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                            class="hidden lg:flex items-center justify-center p-2 rounded-xl text-slate-500 hover:text-[#6C63FF] hover:bg-[#ECEBFC] transition-colors"
                             title="Perkecil / Perbesar Sidebar">
                         <svg class="sidebar-toggle-icon w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                         </svg>
                     </button>
 
-                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                    <div class="text-lg font-bold text-[#29283D] tracking-tight">
                         @yield('header', 'Operasional')
                     </div>
                 </div>
 
                 <div class="flex items-center space-x-3">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e6faf5] text-[#14433b] border border-[#21c9a4]/30">
-                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-[#21c9a4]"></span>
+                    <span class="clay-badge clay-badge-supporting text-xs">
+                        <span class="w-2 h-2 rounded-full bg-[#72D6C9] ring-2 ring-[#72D6C9]/40"></span>
                         Waktu Bali: {{ now()->format('H:i') }} WITA
                     </span>
 
-                    <a href="{{ route('bookings.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-[#14433b] text-white hover:bg-[#1b584d] transition-colors shadow-xs">
+                    <a href="{{ route('bookings.create') }}" class="clay-btn clay-btn-primary px-3.5 py-1.5 text-xs shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -162,17 +162,19 @@
             </header>
 
             <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#F4F3FA]">
                 <!-- Flash Messages -->
                 @if(session('success'))
-                <div class="mb-6 p-4 rounded-lg bg-[#e6faf5] border border-[#21c9a4]/40 text-[#14433b] flex items-center justify-between shadow-xs">
+                <div class="mb-6 p-4 rounded-2xl bg-white border border-[#72D6C9]/50 text-[#1F7368] flex items-center justify-between shadow-[8px_10px_24px_rgba(55,48,100,0.06),inset_0_2px_2px_rgba(255,255,255,0.9)]">
                     <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-[#21c9a4] shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-sm font-medium">{{ session('success') }}</span>
+                        <div class="w-8 h-8 rounded-xl bg-[#EBFBF8] text-[#1F7368] flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-[#72D6C9]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-semibold">{{ session('success') }}</span>
                     </div>
-                    <button type="button" @click="$el.parentElement.remove()" class="text-[#14433b]/60 hover:text-[#14433b]">
+                    <button type="button" @click="$el.parentElement.remove()" class="text-[#1F7368]/60 hover:text-[#1F7368] p-1 rounded-lg">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -181,14 +183,16 @@
                 @endif
 
                 @if(session('error'))
-                <div class="mb-6 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-xs">
+                <div class="mb-6 p-4 rounded-2xl bg-white border border-rose-200 text-rose-800 flex items-center justify-between shadow-[8px_10px_24px_rgba(55,48,100,0.06),inset_0_2px_2px_rgba(255,255,255,0.9)]">
                     <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-sm font-medium">{{ session('error') }}</span>
+                        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-semibold">{{ session('error') }}</span>
                     </div>
-                    <button type="button" @click="$el.parentElement.remove()" class="text-rose-600 hover:text-rose-800">
+                    <button type="button" @click="$el.parentElement.remove()" class="text-rose-600 hover:text-rose-800 p-1 rounded-lg">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -210,8 +214,8 @@
                 text: 'Apakah Anda yakin ingin keluar dari sistem {{ $appName ?? "ARTDEVATA" }}?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#e11d48',
-                cancelButtonColor: '#64748b',
+                confirmButtonColor: '#FF5A5F',
+                cancelButtonColor: '#77768C',
                 confirmButtonText: 'Ya, Keluar',
                 cancelButtonText: 'Batal'
             }).then((result) => {

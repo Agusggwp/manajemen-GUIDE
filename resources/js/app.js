@@ -5,13 +5,13 @@ import Swal from 'sweetalert2';
 window.Alpine = Alpine;
 window.Swal = Swal;
 
-// Global Toast / Alert Helpers with ARTDEVATA theme
+// Global Toast / Alert Helpers with ARTDEVATA Clay theme
 window.toastSuccess = function (message, title = 'Berhasil!') {
     return Swal.fire({
         icon: 'success',
         title: title,
         text: message,
-        confirmButtonColor: '#14433b',
+        confirmButtonColor: '#6C63FF',
         confirmButtonText: 'OK',
         timer: 3500,
         timerProgressBar: true,
@@ -23,7 +23,7 @@ window.toastError = function (message, title = 'Perhatian') {
         icon: 'error',
         title: title,
         text: message,
-        confirmButtonColor: '#14433b',
+        confirmButtonColor: '#6C63FF',
         confirmButtonText: 'Tutup',
     });
 };
@@ -34,7 +34,7 @@ window.confirmAction = function (message, onConfirm, title = 'Konfirmasi Tindaka
         text: message,
         icon: icon,
         showCancelButton: true,
-        confirmButtonColor: '#14433b',
+        confirmButtonColor: '#6C63FF',
         cancelButtonColor: '#94a3b8',
         confirmButtonText: confirmBtn,
         cancelButtonText: 'Batal',
@@ -63,7 +63,7 @@ document.addEventListener('submit', function (e) {
                 text: message,
                 icon: icon,
                 showCancelButton: true,
-                confirmButtonColor: isDanger ? '#e11d48' : '#14433b',
+                confirmButtonColor: isDanger ? '#e11d48' : '#6C63FF',
                 cancelButtonColor: '#94a3b8',
                 confirmButtonText: confirmBtn,
                 cancelButtonText: 'Batal',
