@@ -219,4 +219,13 @@ class DirectTourTest extends TestCase
         $responseQueue->assertSee('#1');
         $responseQueue->assertSee('Made Sudarma');
     }
+
+    public function test_guide_can_view_queue_page_when_not_checked_in(): void
+    {
+        $responseQueue = $this->actingAs($this->guideUser)->get(route('guide.queue'));
+        $responseQueue->assertStatus(200);
+        $responseQueue->assertSee('Papan Antrean Guide');
+        $responseQueue->assertSee('Check-in sekarang agar masuk ke dalam antrean harian.');
+    }
 }
+

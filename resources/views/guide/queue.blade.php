@@ -81,7 +81,7 @@
                 <span class="text-base">⏳</span>
                 <span>Ada <strong>{{ $guidesAheadCount }} guide</strong> lagi sebelum giliran Anda tiba.</span>
             </div>
-        @elseif(!$todayAttendance || $todayAttendance->status !== 'CHECKED_IN')
+        @elseif(!($todayAttendance ?? null) || ($todayAttendance->status ?? null) !== 'CHECKED_IN')
             <div class="mt-3.5 p-2.5 rounded-xl bg-amber-400/20 border border-amber-300/30 text-amber-100 text-xs flex items-center justify-between">
                 <span>Check-in sekarang agar masuk ke dalam antrean harian.</span>
                 <a href="{{ route('guide.dashboard') }}" class="px-2.5 py-1 bg-amber-400 text-slate-900 rounded-lg font-bold text-[11px]">

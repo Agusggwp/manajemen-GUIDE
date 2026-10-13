@@ -247,11 +247,15 @@ class GuidePortalController extends Controller
     {
         $guide = $this->getAuthenticatedGuide();
         $today = Carbon::today()->toDateString();
+        $todayAttendance = GuideAttendance::where('guide_id', $guide->id)
+            ->where('attendance_date', $today)
+            ->first();
         $queueData = $this->getQueueOverviewData($guide, $today, $queueService);
 
         return view('guide.queue', array_merge([
             'guide' => $guide,
             'today' => $today,
+            'todayAttendance' => $todayAttendance,
         ], $queueData));
     }
 
@@ -326,6 +330,10 @@ class GuidePortalController extends Controller
             }
         }
 
+        $todayAttendance = GuideAttendance::where('guide_id', $guide->id)
+            ->where('attendance_date', $today)
+            ->first();
+
         return [
             'state' => $state,
             'lastPosition' => $lastPosition,
@@ -337,6 +345,7 @@ class GuidePortalController extends Controller
             'myInfo' => $myInfo,
             'isMyTurnNext' => $isMyTurnNext,
             'guidesAheadCount' => $guidesAheadCount,
+            'todayAttendance' => $todayAttendance,
         ];
     }
 }
