@@ -8,7 +8,6 @@
     gpsLongitude: null,
     gpsLoading: false,
     gpsCaptured: false,
-    walkInModalOpen: false,
 
     captureGps() {
         if ('geolocation' in navigator) {
@@ -226,25 +225,7 @@
             <span class="text-xs font-extrabold text-[#FF8A65] block mt-1">Rp {{ number_format($todayEarnings, 0, ',', '.') }}</span>
         </div>
     </div>
- 
-    @if(!$guide->isSuspended() && $todayAttendance && $todayAttendance->status === 'CHECKED_IN' && !$activeTour)
-    <!-- Walk-in Quick Tour Launch for Guides -->
-    <div class="clay-card p-4 bg-gradient-to-r from-white to-[#FFD166]/10 border border-[#FFD166]/40">
-        <div class="flex items-center justify-between gap-3">
-            <div>
-                <div class="flex items-center gap-1.5 font-bold text-xs text-[#29283D]">
-                    <span class="w-6 h-6 rounded-lg bg-[#FFD166]/30 text-[#8a6800] flex items-center justify-center text-xs">⚡</span>
-                    <span>Ada Tamu Langsung (Walk-In)?</span>
-                </div>
-                <p class="text-[11px] text-[#77768C] mt-0.5">Mulai tour seketika tanpa perlu reservasi atau booking admin.</p>
-            </div>
-            <button type="button" @click="walkInModalOpen = true" 
-                    class="clay-btn clay-btn-coral py-2 px-3.5 text-xs font-bold shrink-0 flex items-center gap-1">
-                <span>⚡ Mulai Tour</span>
-            </button>
-        </div>
-    </div>
-    @endif
+
 
     <!-- Papan Antrean & Rekan Guide yang ON Hari Ini -->
     <div class="clay-card p-4 space-y-3">
@@ -381,87 +362,6 @@
             Belum ada jadwal penugasan tour untuk Anda hari ini.
         </div>
         @endforelse
-    </div>
-
-    <!-- Walk-in Tour Modal for Guide -->
-    <div x-show="walkInModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-        <div class="fixed inset-0 bg-[#29283D]/40 backdrop-blur-sm transition-opacity" @click="walkInModalOpen = false"></div>
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div class="relative w-full max-w-md bg-white rounded-3xl p-6 clay-card space-y-4" @click.stop>
-                <div class="flex items-center justify-between border-b border-[#E8E6F0] pb-3.5">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-2xl bg-[#FFD166]/30 text-[#8a6800] flex items-center justify-center font-bold text-sm shadow-xs">
-                            ⚡
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-[#29283D] font-display">Mulai Tour Langsung</h3>
-                            <p class="text-[11px] text-[#77768C]">Input tamu walk-in dan langsung mulai bertugas</p>
-                        </div>
-                    </div>
-                    <button type="button" @click="walkInModalOpen = false" class="w-8 h-8 rounded-full bg-[#F4F3FA] text-[#77768C] hover:text-[#29283D] flex items-center justify-center text-lg font-bold">
-                        &times;
-                    </button>
-                </div>
-
-                <form action="{{ route('guide.direct-tour.store') }}" method="POST" class="space-y-3.5 text-xs">
-                    @csrf
-                    <div>
-                        <label class="block font-bold text-[#29283D] mb-1">Pilih Paket Wisata <span class="text-[#FF8A65]">*</span></label>
-                        <select name="tour_package_id" required
-                                class="clay-input text-xs font-semibold">
-                            @foreach($tourPackages as $pkg)
-                                <option value="{{ $pkg->id }}">
-                                    {{ $pkg->name }} (Rp {{ number_format($pkg->default_price, 0, ',', '.') }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block font-bold text-[#29283D] mb-1">Jumlah Tamu <span class="text-[#FF8A65]">*</span></label>
-                            <input type="number" name="guest_count" value="2" min="1" max="99" required
-                                   class="clay-input text-xs font-bold text-[#29283D]">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-[#29283D] mb-1">Nama Tamu / Grup</label>
-                            <input type="text" name="customer_name" value="Tamu Walk-in" placeholder="Contoh: Tamu Walk-in"
-                                   class="clay-input text-xs">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-[#29283D] mb-1">No. WhatsApp Tamu (Opsional)</label>
-                        <input type="text" name="customer_phone" placeholder="08xxxxxxxxxx"
-                               class="clay-input text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-[#29283D] mb-1">Catatan Tambahan (Opsional)</label>
-                        <textarea name="notes" rows="2" placeholder="Catatan lokasi/rombongan"
-                                  class="clay-input text-xs"></textarea>
-                    </div>
-
-                    <div class="p-3 bg-[#72D6C9]/15 border border-[#72D6C9]/40 rounded-2xl text-[11px] text-[#147a6f] space-y-1">
-                        <div class="font-bold flex items-center gap-1">
-                            <span>✓</span> Status Anda Langsung ON TOUR
-                        </div>
-                        <p class="text-[#147a6f]">Fee tour akan dihitung otomatis sesuai jumlah tamu dan masuk ke catatan pendapatan Anda.</p>
-                    </div>
-
-                    <div class="flex items-center gap-2 pt-2">
-                        <button type="button" @click="walkInModalOpen = false" 
-                                class="clay-btn clay-btn-secondary flex-1 py-3 text-[#77768C] font-bold">
-                            Batal
-                        </button>
-                        <button type="submit" 
-                                class="clay-btn clay-btn-coral flex-1 py-3 font-bold flex items-center justify-center gap-1">
-                            <span>⚡ Mulai Tour Sekarang</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
