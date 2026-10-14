@@ -32,11 +32,11 @@
     },
 
     get estimatedGuideFee() {
-        return this.guestCount * 50000;
+        return this.guestCount * {{ (float) \App\Models\Setting::get('default_guide_fee', 50000) }};
     },
 
     get estimatedProfit() {
-        return this.totalPrice - this.estimatedGuideFee;
+        return Math.max(0, this.totalPrice - this.estimatedGuideFee - {{ (float) \App\Models\Setting::get('default_phone_fee', 0) }});
     },
 
     formatRupiah(num) {

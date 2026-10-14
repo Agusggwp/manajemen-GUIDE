@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\AuditLog;
 use App\Models\Booking;
+use App\Models\Expense;
 use App\Models\Guest;
 use App\Models\Guide;
+use App\Models\Setting;
 use App\Models\TourPackage;
 use App\Models\User;
 use Carbon\Carbon;
@@ -51,6 +53,11 @@ class BookingService
                 'notes' => $data['notes'] ?? null,
                 'price_per_guest' => $pricePerGuest,
                 'total_price' => $totalPrice,
+                'payment_method' => !empty($data['payment_method']) ? strtoupper($data['payment_method']) : 'CASH',
+                'payment_status' => $data['payment_status'] ?? 'PAID',
+                'amount_paid' => isset($data['amount_paid']) && $data['amount_paid'] !== null ? (float) $data['amount_paid'] : null,
+                'change_amount' => isset($data['change_amount']) && $data['change_amount'] !== null ? (float) $data['change_amount'] : null,
+                'payment_reference' => $data['payment_reference'] ?? null,
                 'guide_fee_total' => 0,
                 'operational_cost' => 0,
                 'company_profit' => $totalPrice,
@@ -151,6 +158,13 @@ class BookingService
             $customerName = !empty($data['customer_name']) ? trim($data['customer_name']) : 'Tamu Walk-in';
             $startImmediately = !empty($data['start_immediately']);
 
+            $paymentMethod = !empty($data['payment_method']) ? strtoupper($data['payment_method']) : 'CASH';
+            $amountPaid = isset($data['amount_paid']) && $data['amount_paid'] !== null && $data['amount_paid'] !== '' ? (float) $data['amount_paid'] : null;
+            $changeAmount = null;
+            if ($paymentMethod === 'CASH' && $amountPaid !== null) {
+                $changeAmount = max(0, $amountPaid - $totalPrice);
+            }
+
             $booking = Booking::create([
                 'booking_code' => $bookingCode,
                 'booking_date' => $bookingDate,
@@ -166,6 +180,11 @@ class BookingService
                 'notes' => $data['notes'] ?? 'Tour langsung tanpa reservasi (Walk-in).',
                 'price_per_guest' => $pricePerGuest,
                 'total_price' => $totalPrice,
+                'payment_method' => $paymentMethod,
+                'payment_status' => $data['payment_status'] ?? 'PAID',
+                'amount_paid' => $amountPaid,
+                'change_amount' => $changeAmount,
+                'payment_reference' => $data['payment_reference'] ?? null,
                 'guide_fee_total' => 0,
                 'operational_cost' => 0,
                 'company_profit' => $totalPrice,
@@ -209,6 +228,40 @@ class BookingService
                 $booking->save();
             }
 
+            // Record phone fee deduction as operational expense if applicable
+            $phoneFee = isset($data['phone_fee']) && $data['phone_fee'] !== null
+                ? (float) $data['phone_fee']
+                : (float) Setting::get('default_phone_fee', 0);
+
+            if ($phoneFee > 0) {
+                Expense::create([
+                    'booking_id' => $booking->id,
+                    'category' => 'Biaya Telepon / Komunikasi',
+                    'description' => 'Potongan biaya telepon tour langsung (' . $booking->booking_code . ')',
+                    'amount' => $phoneFee,
+                    'expense_date' => $bookingDate,
+                    'created_by' => $user ? $user->id : auth()->id(),
+                    'notes' => 'Otomatis dicatat dari pemotongan biaya telepon saat tour langsung dibuat.',
+                ]);
+            }
+
+            // Record driver fee if requested (strictly from Admin Settings)
+            $giveDriverFee = !empty($data['give_driver_fee']);
+            $driverFee = $giveDriverFee ? (float) Setting::get('default_driver_fee', 50000) : 0;
+
+            if ($giveDriverFee && $driverFee > 0) {
+                $driverNotes = !empty($data['driver_notes']) ? ' (' . trim($data['driver_notes']) . ')' : '';
+                Expense::create([
+                    'booking_id' => $booking->id,
+                    'category' => 'Uang Driver',
+                    'description' => 'Uang driver tour langsung ' . $booking->booking_code . $driverNotes,
+                    'amount' => $driverFee,
+                    'expense_date' => $bookingDate,
+                    'created_by' => $user ? $user->id : auth()->id(),
+                    'notes' => 'Otomatis dicatat dari alokasi uang driver saat tour langsung dibuat.',
+                ]);
+            }
+
             $booking->recalculateTotals();
 
             AuditLog::log('CREATE_DIRECT_TOUR', Booking::class, $booking->id, null, [
@@ -217,6 +270,8 @@ class BookingService
                 'guest_count' => $guestCount,
                 'start_immediately' => $startImmediately,
                 'total_price' => $totalPrice,
+                'phone_fee' => $phoneFee,
+                'driver_fee' => $giveDriverFee ? $driverFee : 0,
             ]);
 
             return [

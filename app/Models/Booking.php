@@ -29,6 +29,11 @@ class Booking extends Model
         'company_profit',
         'status',
         'is_walkin',
+        'payment_method',
+        'payment_status',
+        'amount_paid',
+        'change_amount',
+        'payment_reference',
         'created_by',
     ];
 
@@ -43,7 +48,22 @@ class Booking extends Model
             'operational_cost' => 'decimal:2',
             'company_profit' => 'decimal:2',
             'is_walkin' => 'boolean',
+            'amount_paid' => 'decimal:2',
+            'change_amount' => 'decimal:2',
         ];
+    }
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        $map = [
+            'CASH' => 'Tunai (Cash)',
+            'QRIS' => 'QRIS Scan',
+            'TRANSFER' => 'Transfer Bank',
+            'CARD' => 'Kartu Debit / EDC',
+            'CREDIT_CARD' => 'Kartu Kredit',
+        ];
+
+        return $map[strtoupper($this->payment_method ?? '')] ?? ($this->payment_method ?: 'Tunai (Cash)');
     }
 
     public function tourPackage()

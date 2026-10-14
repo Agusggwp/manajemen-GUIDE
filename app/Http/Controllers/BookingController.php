@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\Guide;
 use App\Models\GuideAssignment;
+use App\Models\Setting;
 use App\Models\TourPackage;
 use App\Services\BookingService;
 use App\Services\GuideQueueService;
@@ -67,6 +68,8 @@ class BookingController extends Controller
             'location' => 'nullable|string|max:150',
             'pickup_location' => 'nullable|string|max:150',
             'notes' => 'nullable|string',
+            'payment_method' => 'nullable|string|max:50',
+            'payment_reference' => 'nullable|string|max:100',
             'guests' => 'nullable|array',
             'guests.*.nama' => 'nullable|string|max:100',
             'guests.*.jenis_kelamin' => 'nullable|in:L,P',
@@ -256,8 +259,11 @@ class BookingController extends Controller
 
         $pricePerGuest = $tourPackage->getPriceForGuestCount($guestCount);
         $totalPrice = $guestCount * $pricePerGuest;
-        $estGuideFee = $guestCount * 50000;
-        $estProfit = $totalPrice - $estGuideFee;
+        $defaultGuideFee = (float) Setting::get('default_guide_fee', 50000);
+        $estGuideFee = $guestCount * $defaultGuideFee;
+        $defaultPhoneFee = (float) Setting::get('default_phone_fee', 0);
+        $defaultDriverFee = (float) Setting::get('default_driver_fee', 50000);
+        $estProfit = max(0, $totalPrice - $estGuideFee - $defaultPhoneFee);
 
         return response()->json([
             'success' => true,
@@ -267,6 +273,10 @@ class BookingController extends Controller
             'total_price_formatted' => 'Rp ' . number_format($totalPrice, 0, ',', '.'),
             'estimated_guide_fee' => $estGuideFee,
             'estimated_guide_fee_formatted' => 'Rp ' . number_format($estGuideFee, 0, ',', '.'),
+            'estimated_phone_fee' => $defaultPhoneFee,
+            'estimated_phone_fee_formatted' => 'Rp ' . number_format($defaultPhoneFee, 0, ',', '.'),
+            'default_driver_fee' => $defaultDriverFee,
+            'default_driver_fee_formatted' => 'Rp ' . number_format($defaultDriverFee, 0, ',', '.'),
             'estimated_profit' => $estProfit,
             'estimated_profit_formatted' => 'Rp ' . number_format($estProfit, 0, ',', '.'),
         ]);

@@ -82,6 +82,16 @@
                     <span class="w-2 h-2 rounded-full bg-[#72D6C9] animate-pulse"></span>
                     HADIR (CHECK-IN)
                 </span>
+            @elseif(!$isOperationalOpen && $todayAttendance && $todayAttendance->status === 'CHECKED_OUT')
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-[#77768C] border border-[#E8E6F0] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    CHECK-OUT (LOKET TUTUP)
+                </span>
+            @elseif(!$isOperationalOpen)
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                    LOKET TUTUP
+                </span>
             @elseif($todayAttendance && $todayAttendance->status === 'CHECKED_OUT')
                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-[#77768C] border border-[#E8E6F0]">
                     SUDAH CHECK-OUT
@@ -146,6 +156,23 @@
                     <span class="font-bold block mb-0.5">Absen Masuk Dinonaktifkan</span>
                     Akun Anda sedang ditangguhkan. Silakan hubungi admin operasional untuk info lebih lanjut.
                 </div>
+            @elseif(!$isOperationalOpen && (!$todayAttendance || $todayAttendance->status === 'NOT_CHECKED_IN'))
+                <div class="text-center p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 space-y-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 mx-auto flex items-center justify-center font-bold shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-sm block text-[#29283D] mb-1">Loket Operasional Sedang TUTUP</span>
+                        <p class="text-[11px] text-[#77768C] leading-relaxed">
+                            Loket kasir operasional saat ini belum dibuka oleh staf/admin. Pemandu wisata baru dapat melakukan check-in setelah loket dibuka.
+                        </p>
+                    </div>
+                    <button type="button" disabled class="clay-btn bg-slate-200 text-slate-400 border-slate-300 w-full py-3.5 px-4 text-xs font-bold cursor-not-allowed">
+                        <span>LOKET TUTUP (BELUM BISA CHECK-IN)</span>
+                    </button>
+                </div>
             @elseif(!$todayAttendance || $todayAttendance->status === 'NOT_CHECKED_IN')
                 <form action="{{ route('guide.check-in') }}" method="POST">
                     @csrf
@@ -192,19 +219,31 @@
                         <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-[#77768C]">Nonaktif Sementara</span>
                     </div>
 
-                    <form action="{{ route('guide.check-in') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="latitude" x-model="gpsLatitude">
-                        <input type="hidden" name="longitude" x-model="gpsLongitude">
-                        <button type="submit" 
-                                class="clay-btn clay-btn-primary w-full py-3.5 px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4 text-[#FFD166]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            <span>ABSEN MASUK KEMBALI (CHECK-IN LAGI)</span>
-                        </button>
-                        <span class="text-[10px] text-[#77768C] text-center block mt-2">
-                            Anda dapat check-in kembali kapan saja tanpa batasan per hari untuk menerima penugasan tour baru.
-                        </span>
-                    </form>
+                    @if(!$isOperationalOpen)
+                        <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-center text-xs text-amber-900 space-y-1.5">
+                            <span class="font-extrabold block text-[#29283D]">Loket Operasional Sedang TUTUP</span>
+                            <p class="text-[11px] text-[#77768C] leading-relaxed">
+                                Operasional loket telah ditutup oleh staf/admin (atau jam operasional telah berakhir). Anda tidak dapat melakukan check-in ulang hingga loket dibuka kembali.
+                            </p>
+                            <button type="button" disabled class="mt-1 clay-btn bg-slate-200 text-slate-400 border-slate-300 w-full py-3 px-4 text-xs font-bold cursor-not-allowed">
+                                LOKET TUTUP (OPERASIONAL SELESAI)
+                            </button>
+                        </div>
+                    @else
+                        <form action="{{ route('guide.check-in') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="latitude" x-model="gpsLatitude">
+                            <input type="hidden" name="longitude" x-model="gpsLongitude">
+                            <button type="submit" 
+                                    class="clay-btn clay-btn-primary w-full py-3.5 px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4 text-[#FFD166]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                <span>ABSEN MASUK KEMBALI (CHECK-IN LAGI)</span>
+                            </button>
+                            <span class="text-[10px] text-[#77768C] text-center block mt-2">
+                                Anda dapat check-in kembali kapan saja tanpa batasan per hari untuk menerima penugasan tour baru.
+                            </span>
+                        </form>
+                    @endif
                 </div>
             @endif
         </div>

@@ -320,6 +320,7 @@ class CompleteSystemAuditTest extends TestCase
 
         $routes = [
             'reports.revenue' => ['start_date' => $start, 'end_date' => $today],
+            'reports.guide-payroll' => ['start_date' => $start, 'end_date' => $today],
             'reports.guides' => ['start_date' => $start, 'end_date' => $today],
             'reports.attendance' => ['start_date' => $start, 'end_date' => $today],
             'reports.queue' => ['start_date' => $start, 'end_date' => $today],

@@ -54,25 +54,50 @@
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
         }
+        html.sidebar-collapsed .sidebar-header a {
+            margin: 0 auto !important;
+            justify-content: center !important;
+        }
         html.sidebar-collapsed .sidebar-nav {
-            padding: 0.5rem !important;
+            padding: 0.75rem 0.5rem !important;
         }
         html.sidebar-collapsed .sidebar-group-title {
             display: none !important;
         }
         html.sidebar-collapsed .sidebar-group-divider {
             display: block !important;
+            margin: 0.5rem auto !important;
+            width: 2.25rem !important;
+        }
+        html.sidebar-collapsed .sidebar-submenu {
+            display: none !important;
         }
         html.sidebar-collapsed .sidebar-link {
+            display: flex !important;
+            align-items: center !important;
             justify-content: center !important;
-            padding: 0.625rem !important;
-            height: 2.5rem !important;
-            width: 2.5rem !important;
+            padding: 0 !important;
+            height: 2.625rem !important; /* 42px */
+            width: 2.625rem !important;  /* 42px */
             margin-left: auto !important;
             margin-right: auto !important;
+            border-radius: 0.75rem !important; /* 12px */
+            flex-shrink: 0 !important;
         }
         html.sidebar-collapsed .sidebar-link-content {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
+            padding: 0 !important;
+        }
+        html.sidebar-collapsed .sidebar-link-content svg {
+            width: 1.25rem !important; /* 20px */
+            height: 1.25rem !important; /* 20px */
+            margin: 0 !important;
+            flex-shrink: 0 !important;
         }
         html.sidebar-collapsed .sidebar-footer {
             padding: 0.75rem 0.25rem !important;
@@ -147,7 +172,64 @@
                 </div>
 
                 <div class="flex items-center space-x-3">
-                    <span class="clay-badge clay-badge-supporting text-xs">
+                    @php
+                        $navShift = app(\App\Services\OperationalShiftService::class)->getStatus();
+                    @endphp
+
+                    @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isStaff()))
+                        <!-- Shift Status & Quick Toggle for Staff / Admin -->
+                        @if($navShift['is_open'])
+                            <form action="{{ route('operational.close') }}" method="POST"
+                                  data-confirm="Konfirmasi Tutup Loket Operasional? Semua guide ({{ $navShift['active_guides_count'] }} orang) yang saat ini berstatus CHECK-IN akan OTOMATIS di-checkout oleh sistem!"
+                                  data-confirm-title="Tutup Loket Operasional"
+                                  data-confirm-danger="true"
+                                  data-confirm-btn="Ya, Tutup Loket Sekarang">
+                                @csrf
+                                <input type="hidden" name="reason" value="Penutupan loket dari navbar">
+                                <button type="submit" 
+                                        class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-[#72D6C9]/20 text-[#147a6f] border border-[#72D6C9]/50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition-all flex items-center gap-1.5 shadow-2xs group cursor-pointer"
+                                        title="Status Loket Buka. Klik untuk Menutup Loket (Auto Checkout Guide)">
+                                    <span class="w-2 h-2 rounded-full bg-[#147a6f] group-hover:bg-rose-600 animate-pulse"></span>
+                                    <span class="group-hover:hidden font-extrabold">Loket BUKA</span>
+                                    <span class="hidden group-hover:inline font-black">Tutup Loket?</span>
+                                </button>
+                            </form>
+                        @else
+                            <div class="flex items-center gap-1.5">
+                                @if($navShift['active_guides_count'] > 0)
+                                    <form action="{{ route('operational.close') }}" method="POST"
+                                          data-confirm="Terdapat {{ $navShift['active_guides_count'] }} guide yang masih berstatus CHECK-IN. Lakukan Force Tutup Loket untuk checkout semua guide ini sekarang?"
+                                          data-confirm-title="Force Tutup Loket"
+                                          data-confirm-danger="true"
+                                          data-confirm-btn="Ya, Force Checkout Semua">
+                                        @csrf
+                                        <input type="hidden" name="reason" value="Force tutup loket sisa guide aktif">
+                                        <button type="submit" 
+                                                class="px-2.5 py-1.5 rounded-xl text-xs font-black bg-rose-500 text-white hover:bg-rose-600 border border-rose-600 transition-all flex items-center gap-1 shadow-xs cursor-pointer animate-pulse"
+                                                title="Ada guide yang belum checkout. Klik untuk Force Tutup Loket & Checkout semua guide!">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                            </svg>
+                                            <span>Force Tutup ({{ $navShift['active_guides_count'] }})</span>
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <form action="{{ route('operational.open') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 hover:bg-[#72D6C9]/25 hover:text-[#147a6f] hover:border-[#72D6C9]/50 transition-all flex items-center gap-1.5 shadow-2xs group cursor-pointer"
+                                            title="Status Loket Tutup. Klik untuk Membuka Loket (Izinkan Guide Check-in)">
+                                        <span class="w-2 h-2 rounded-full bg-rose-600 group-hover:bg-[#147a6f]"></span>
+                                        <span class="group-hover:hidden font-extrabold">Loket TUTUP</span>
+                                        <span class="hidden group-hover:inline font-black">Buka Loket?</span>
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+                    @endif
+
+                    <span class="clay-badge clay-badge-supporting text-xs hidden sm:inline-flex">
                         <span class="w-2 h-2 rounded-full bg-[#72D6C9] ring-2 ring-[#72D6C9]/40"></span>
                         Waktu Bali: {{ now()->format('H:i') }} WITA
                     </span>
@@ -205,17 +287,19 @@
         </div>
     </div>
 
-    <!-- SweetAlert Logout Confirmation (Matching React ConfirmDialog) -->
+
+
+    <!-- ArtAlert Logout Confirmation -->
     <script>
     function confirmLogout() {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
+        const alertHandler = window.ArtAlert || window.Swal;
+        if (alertHandler) {
+            alertHandler.fire({
                 title: 'Konfirmasi Logout',
                 text: 'Apakah Anda yakin ingin keluar dari sistem {{ $appName ?? "ARTDEVATA" }}?',
-                icon: 'warning',
+                icon: 'danger',
+                isDanger: true,
                 showCancelButton: true,
-                confirmButtonColor: '#FF5A5F',
-                cancelButtonColor: '#77768C',
                 confirmButtonText: 'Ya, Keluar',
                 cancelButtonText: 'Batal'
             }).then((result) => {

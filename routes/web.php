@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\GuidePortalController;
 use App\Http\Controllers\GuideQueueBoardController;
+use App\Http\Controllers\OperationalShiftController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\QueueHistoryController;
 use App\Http\Controllers\ReportController;
@@ -58,11 +59,18 @@ Route::middleware(['auth', 'role:ADMIN,STAFF'])->group(function () {
     // Direct / Walk-In Tours (Tanpa Booking)
     Route::get('/direct-tours/create', [DirectTourController::class, 'create'])->name('direct-tours.create');
     Route::post('/direct-tours', [DirectTourController::class, 'store'])->name('direct-tours.store');
+    Route::get('/direct-tours/{booking}/receipt', [DirectTourController::class, 'receipt'])->name('direct-tours.receipt');
+    Route::get('/bookings/{booking}/receipt', [DirectTourController::class, 'receipt'])->name('bookings.receipt');
 
     // Attendance
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance/{guide}/force-checkin', [AttendanceController::class, 'forceCheckIn'])->name('attendance.force-checkin');
     Route::post('/attendance/{guide}/force-checkout', [AttendanceController::class, 'forceCheckOut'])->name('attendance.force-checkout');
+
+    // Operational Shift Open / Close (Sistem Buka Tutup Loket Kasir)
+    Route::post('/operational/open', [OperationalShiftController::class, 'open'])->name('operational.open');
+    Route::post('/operational/close', [OperationalShiftController::class, 'close'])->name('operational.close');
+    Route::get('/operational/status', [OperationalShiftController::class, 'status'])->name('operational.status');
 
     // Guides (View list & Reorder)
     Route::get('/guides', [GuideController::class, 'index'])->name('guides.index');
@@ -76,6 +84,7 @@ Route::middleware(['auth', 'role:ADMIN,STAFF'])->group(function () {
 
     // Operational Reports
     Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('/reports/guide-payroll', [ReportController::class, 'guidePayroll'])->name('reports.guide-payroll');
     Route::get('/reports/guides', [ReportController::class, 'guideReport'])->name('reports.guides');
     Route::get('/reports/attendance', [ReportController::class, 'attendance'])->name('reports.attendance');
     Route::get('/reports/queue', [ReportController::class, 'queueReport'])->name('reports.queue');
@@ -130,6 +139,7 @@ Route::middleware(['auth', 'role:ADMIN'])->group(function () {
     // System Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/test-discord', [SettingController::class, 'testDiscordWebhook'])->name('settings.test-discord');
 
     // User Registration Approvals (ACC Staff/Admin)
     Route::get('/user-approvals', [UserApprovalController::class, 'index'])->name('admin.user-approvals.index');

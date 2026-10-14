@@ -135,6 +135,126 @@ class ReportController extends Controller
         return view('reports.guide', compact('guides', 'startDate', 'endDate'));
     }
 
+    public function guidePayroll(Request $request)
+    {
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $currentYear = (int) Carbon::today()->format('Y');
+        $currentMonth = (int) Carbon::today()->format('n');
+
+        $filterType = $request->query('filter_type');
+        if (!$filterType) {
+            $filterType = ($request->filled('start_date') && $request->filled('end_date') && !$request->filled('month')) ? 'custom' : 'month';
+        }
+
+        $selectedMonth = $request->filled('month') ? (int) $request->month : $currentMonth;
+        $selectedYear = $request->filled('year') ? (int) $request->year : $currentYear;
+
+        if ($filterType === 'month') {
+            $startDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->endOfMonth()->toDateString();
+            $periodLabel = "Bulan {$months[$selectedMonth]} {$selectedYear}";
+        } elseif ($filterType === 'all') {
+            $startDate = null;
+            $endDate = null;
+            $periodLabel = "Seluruh Waktu";
+        } else {
+            $startDate = $request->query('start_date', Carbon::today()->startOfMonth()->toDateString());
+            $endDate = $request->query('end_date', Carbon::today()->toDateString());
+            $periodLabel = Carbon::parse($startDate)->format('d M Y') . ' s/d ' . Carbon::parse($endDate)->format('d M Y');
+        }
+
+        $selectedGuideId = $request->query('guide_id');
+        $selectedStatus = $request->query('payment_status', 'all');
+
+        $guidesQuery = Guide::query()->orderBy('queue_number');
+        if ($selectedGuideId) {
+            $guidesQuery->where('id', $selectedGuideId);
+        }
+
+        $allGuidesList = Guide::orderBy('nama')->get();
+
+        $guidesData = $guidesQuery->with([
+            'assignments' => function ($q) use ($startDate, $endDate) {
+                $q->with('booking.tourPackage')
+                  ->where('status', '!=', 'CANCELLED');
+                if ($startDate && $endDate) {
+                    $q->whereBetween('assigned_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+                }
+                $q->orderBy('assigned_at', 'desc');
+            },
+            'payments' => function ($q) use ($startDate, $endDate) {
+                if ($startDate && $endDate) {
+                    $q->whereBetween('payment_date', [$startDate, $endDate]);
+                }
+                $q->orderBy('payment_date', 'desc');
+            }
+        ])->get()->map(function (Guide $guide) {
+            $totalBookings = $guide->assignments->count();
+            $totalGuests = (int) $guide->assignments->sum('guest_count');
+            $totalFee = (float) $guide->assignments->sum('fee_amount');
+            $totalPaid = (float) $guide->payments->sum('amount');
+            $remaining = max(0, $totalFee - $totalPaid);
+
+            $status = 'UNPAID';
+            if ($totalPaid >= $totalFee && $totalFee > 0) {
+                $status = 'PAID';
+            } elseif ($totalPaid > 0) {
+                $status = 'PARTIAL';
+            }
+
+            return (object) [
+                'guide' => $guide,
+                'total_bookings' => $totalBookings,
+                'total_guests' => $totalGuests,
+                'total_fee' => $totalFee,
+                'total_paid' => $totalPaid,
+                'remaining' => $remaining,
+                'status' => $status,
+                'assignments' => $guide->assignments,
+                'payments' => $guide->payments,
+            ];
+        });
+
+        if ($selectedStatus && $selectedStatus !== 'all') {
+            $guidesData = $guidesData->filter(function ($item) use ($selectedStatus) {
+                return $item->status === $selectedStatus;
+            })->values();
+        }
+
+        $totalFeeAll = (float) $guidesData->sum('total_fee');
+        $totalPaidAll = (float) $guidesData->sum('total_paid');
+        $totalRemainingAll = (float) $guidesData->sum('remaining');
+        $totalBookingsAll = (int) $guidesData->sum('total_bookings');
+        $totalGuestsAll = (int) $guidesData->sum('total_guests');
+
+        if ($request->query('export') === 'csv') {
+            return $this->exportGuidePayrollCsv($guidesData, $startDate, $endDate, $periodLabel, $totalFeeAll, $totalPaidAll, $totalRemainingAll);
+        }
+
+        return view('reports.guide_payroll', compact(
+            'guidesData',
+            'allGuidesList',
+            'startDate',
+            'endDate',
+            'filterType',
+            'selectedMonth',
+            'selectedYear',
+            'months',
+            'periodLabel',
+            'selectedGuideId',
+            'selectedStatus',
+            'totalFeeAll',
+            'totalPaidAll',
+            'totalRemainingAll',
+            'totalBookingsAll',
+            'totalGuestsAll'
+        ));
+    }
+
     public function attendance(Request $request)
     {
         $startDate = $request->query('start_date', Carbon::today()->startOfWeek()->toDateString());
@@ -349,6 +469,64 @@ class ReportController extends Controller
                     $h->notes,
                 ]);
             }
+            fclose($handle);
+        }, 200, $headers);
+    }
+
+    private function exportGuidePayrollCsv($guidesData, $startDate, $endDate, $periodLabel, $totalFeeAll, $totalPaidAll, $totalRemainingAll): StreamedResponse
+    {
+        $cleanLabel = \Illuminate\Support\Str::slug($periodLabel ?? 'semua-periode');
+        $filename = "laporan-gaji-fee-guide-{$cleanLabel}.csv";
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        return response()->stream(function () use ($guidesData, $periodLabel, $totalFeeAll, $totalPaidAll, $totalRemainingAll) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, ['LAPORAN GAJI & FEE GUIDE (PAYROLL REPORT) - ARTDEVATA']);
+            fputcsv($handle, ['Periode', $periodLabel]);
+            fputcsv($handle, ['Waktu Export', now()->format('d/m/Y H:i:s') . ' WITA']);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['RINGKASAN TOTAL']);
+            fputcsv($handle, ['Total Hak Fee Guide (Rp)', number_format($totalFeeAll, 2, '.', '')]);
+            fputcsv($handle, ['Total Gaji Terbayar (Rp)', number_format($totalPaidAll, 2, '.', '')]);
+            fputcsv($handle, ['Total Sisa Kewajiban Belum Dibayar (Rp)', number_format($totalRemainingAll, 2, '.', '')]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, [
+                'No Antrean',
+                'Kode Guide',
+                'Nama Guide',
+                'No HP / WhatsApp',
+                'Status Guide',
+                'Total Penugasan Tour',
+                'Total Tamu (Pax)',
+                'Total Hak Fee / Gaji (Rp)',
+                'Gaji Terbayar (Rp)',
+                'Sisa Belum Dibayar (Rp)',
+                'Status Pembayaran',
+            ]);
+
+            foreach ($guidesData as $row) {
+                fputcsv($handle, [
+                    '#' . $row->guide->queue_number,
+                    $row->guide->kode_guide,
+                    $row->guide->nama,
+                    $row->guide->nomor_telepon ?? '-',
+                    $row->guide->status,
+                    $row->total_bookings,
+                    $row->total_guests,
+                    number_format($row->total_fee, 2, '.', ''),
+                    number_format($row->total_paid, 2, '.', ''),
+                    number_format($row->remaining, 2, '.', ''),
+                    $row->status === 'PAID' ? 'LUNAS' : ($row->status === 'PARTIAL' ? 'SEBAGIAN' : 'BELUM DIBAYAR'),
+                ]);
+            }
+
             fclose($handle);
         }, 200, $headers);
     }

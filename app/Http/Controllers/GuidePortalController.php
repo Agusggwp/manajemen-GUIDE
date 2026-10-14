@@ -72,6 +72,8 @@ class GuidePortalController extends Controller
         // Queue status and online guides data
         $queueData = $this->getQueueOverviewData($guide, $today, $queueService);
 
+        $isOperationalOpen = app(\App\Services\OperationalShiftService::class)->isOpen($today);
+
         return view('guide.dashboard', array_merge(compact(
             'guide',
             'today',
@@ -82,7 +84,8 @@ class GuidePortalController extends Controller
             'todayGuestsCount',
             'todayEarnings',
             'activeTour',
-            'tourPackages'
+            'tourPackages',
+            'isOperationalOpen'
         ), $queueData));
     }
 

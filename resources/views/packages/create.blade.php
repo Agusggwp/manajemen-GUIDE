@@ -36,13 +36,14 @@
             </h2>
             <p class="text-xs text-[#77768C] mt-1">Tentukan tarif standar per tamu (1 pax), atau aktifkan paket khusus untuk rombongan bertingkat</p>
         </div>
-        <a href="{{ route('packages.index') }}" class="clay-btn clay-btn-secondary text-xs px-3.5 py-2 inline-flex items-center gap-1.5 self-start sm:self-auto font-bold">
-            <span>&larr;</span> Kembali
+        <a href="{{ request('from') === 'settings' ? route('settings.index', ['tab' => 'packages']) : route('packages.index') }}" class="clay-btn clay-btn-secondary text-xs px-3.5 py-2 inline-flex items-center gap-1.5 self-start sm:self-auto font-bold">
+            <span>&larr;</span> Kembali ke {{ request('from') === 'settings' ? 'Pengaturan' : 'Daftar' }}
         </a>
     </div>
 
     <form action="{{ route('packages.store') }}" method="POST" class="space-y-5 text-xs">
         @csrf
+        <input type="hidden" name="from" value="{{ request('from', 'packages') }}">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="md:col-span-2">
@@ -62,10 +63,10 @@
                 <label class="block font-bold text-[#29283D] mb-1.5">
                     Harga per Tamu (1 Pax) <span class="text-[#FF8A65]">*</span>
                 </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[#77768C] font-bold text-xs">Rp</span>
+                <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#6C63FF] focus-within:ring-2 focus-within:ring-[#6C63FF]/20">
+                    <span class="px-3.5 py-2.5 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                     <input type="number" name="default_price" x-model="defaultPrice" min="0" step="5000" required
-                           class="w-full pl-9 pr-3 py-2 clay-input font-extrabold text-[#6C63FF]">
+                           class="flex-1 px-3 py-2 bg-transparent font-extrabold text-[#6C63FF] outline-none">
                 </div>
                 <p class="text-[11px] text-[#77768C] mt-1">Tarif standar per orang untuk paket ini.</p>
             </div>
@@ -128,10 +129,10 @@
                                        class="w-full clay-input text-center text-xs py-1.5 font-bold">
                             </div>
                             <div class="col-span-5">
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[#77768C] font-bold text-[11px]">Rp</span>
+                                <div class="flex items-center rounded-xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#6C63FF] focus-within:ring-2 focus-within:ring-[#6C63FF]/20">
+                                    <span class="px-2.5 py-1.5 bg-[#F4F3FA] text-[11px] font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                                     <input type="number" :name="'tiers[' + index + '][price]'" x-model="tier.price" min="0" step="5000" required
-                                           class="w-full pl-9 pr-3 py-1.5 clay-input font-extrabold text-[#6C63FF] text-xs">
+                                           class="flex-1 px-2.5 py-1.5 bg-transparent font-extrabold text-[#6C63FF] text-xs outline-none">
                                 </div>
                             </div>
                             <div class="col-span-1 flex justify-center">

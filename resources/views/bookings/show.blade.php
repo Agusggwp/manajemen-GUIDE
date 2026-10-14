@@ -64,6 +64,13 @@
                     Edit Booking
                 </a>
             @endif
+
+            <a href="{{ route('direct-tours.receipt', $booking) }}" class="clay-btn clay-btn-primary py-2 px-3.5 text-xs font-bold inline-flex items-center gap-1.5 shadow-xs">
+                <svg class="w-3.5 h-3.5 text-[#FFD166]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                <span>Struk Thermal</span>
+            </a>
         </div>
     </div>
 
@@ -104,6 +111,14 @@
                 <div>
                     <span class="text-[#77768C] block font-bold uppercase tracking-wider text-[10px]">Jumlah Tamu</span>
                     <span class="font-black text-[#29283D] text-base mt-0.5 block font-display">{{ $booking->guest_count }} orang</span>
+                </div>
+
+                <div>
+                    <span class="text-[#77768C] block font-bold uppercase tracking-wider text-[10px]">Metode Pembayaran</span>
+                    <span class="font-bold text-[#6C63FF] mt-0.5 block">{{ $booking->payment_method_label }}</span>
+                    @if($booking->amount_paid)
+                        <span class="text-[#77768C] block text-[10px]">Diterima: Rp {{ number_format($booking->amount_paid, 0, ',', '.') }}</span>
+                    @endif
                 </div>
 
                 <div class="sm:col-span-2">

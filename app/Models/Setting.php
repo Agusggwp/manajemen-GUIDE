@@ -46,7 +46,9 @@ class Setting extends Model
             'Tiket Masuk & Parkir',
             'Bahan Bakar & Tol',
             'Sewa Mobil / Bus Pariwisata',
+            'Uang Driver',
             'Konsumsi & Air Mineral',
+            'Biaya Telepon / Komunikasi',
             'Lain-lain',
         ];
     }

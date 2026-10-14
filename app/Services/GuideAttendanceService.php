@@ -36,6 +36,14 @@ class GuideAttendanceService
                 throw new Exception("Guide dalam status tidak aktif.");
             }
 
+            // Check if operational counter is currently open (unless forced by admin/system)
+            if (!$isForce) {
+                $shiftService = app(OperationalShiftService::class);
+                if (!$shiftService->isOpen($attendanceDate)) {
+                    throw new Exception("Loket operasional saat ini sedang TUTUP. Pemandu (Guide) belum dapat melakukan check-in sampai operasional dibuka oleh staf/admin.");
+                }
+            }
+
             // Check if GPS is required by settings
             $gpsRequired = Setting::get('gps_required', '0') === '1';
             if ($gpsRequired && (!$latitude || !$longitude)) {

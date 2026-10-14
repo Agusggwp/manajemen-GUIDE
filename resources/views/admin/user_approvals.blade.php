@@ -310,7 +310,7 @@ function confirmApprove(userId, userName, role, isVerified) {
         warningText += `<br><br><span class="text-amber-600 text-xs">Catatan: Pengguna ini belum memverifikasi emailnya. Namun setelah di-ACC, akun akan diaktifkan.</span>`;
     }
 
-    Swal.fire({
+    (window.ArtAlert || window.Swal).fire({
         title: 'ACC Akun Pengguna',
         html: warningText,
         icon: 'question',
@@ -327,7 +327,7 @@ function confirmApprove(userId, userName, role, isVerified) {
 }
 
 function confirmReject(userId, userName) {
-    Swal.fire({
+    (window.ArtAlert || window.Swal).fire({
         title: 'Tolak Pendaftaran',
         html: `Berikan alasan penolakan untuk pendaftaran akun <b>${userName}</b>:`,
         input: 'textarea',

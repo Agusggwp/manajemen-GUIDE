@@ -142,4 +142,88 @@ class SettingLogoTest extends TestCase
         $expensesPage->assertSee('Tips Kru & Helper');
         $expensesPage->assertSee('Sewa Alphard / HiAce');
     }
+
+    public function test_admin_can_update_default_phone_fee(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('settings.update'), [
+            'company_name' => 'ARTDEVATA',
+            'default_guide_fee' => 50000,
+            'default_phone_fee' => 25000,
+            'default_driver_fee' => 60000,
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertEquals('25000', Setting::get('default_phone_fee'));
+        $this->assertEquals('60000', Setting::get('default_driver_fee'));
+    }
+
+    public function test_admin_can_access_settings_sub_menu_tabs(): void
+    {
+        // 1. Check Brand Tab
+        $resBrand = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'brand']));
+        $resBrand->assertStatus(200);
+        $resBrand->assertSee('Identitas & Brand', false);
+        $resBrand->assertSee('Unggah File Logo Baru');
+
+        // 2. Check Tariffs Tab
+        $resTariffs = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'tariffs']));
+        $resTariffs->assertStatus(200);
+        $resTariffs->assertSee('Tarif & Biaya Tour', false);
+        $resTariffs->assertSee('Tarif Standar Fee Guide per Tamu');
+        $resTariffs->assertSee('Tarif Standar Biaya Telepon / Tour');
+        $resTariffs->assertSee('Tarif Standar Uang Driver');
+
+        // 3. Check Categories Tab
+        $resCategories = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'categories']));
+        $resCategories->assertStatus(200);
+        $resCategories->assertSee('Pilihan Kategori Biaya Operasional');
+
+        // 4. Check Packages Tab
+        $resPackages = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'packages']));
+        $resPackages->assertStatus(200);
+        $resPackages->assertSee('Paket Wisata');
+        $resPackages->assertSee('Katalog Paket Wisata');
+        $resPackages->assertSee('+ Tambah Paket Baru');
+
+        // 5. Check Operational Tab
+        $resOperational = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'operational']));
+        $resOperational->assertStatus(200);
+        $resOperational->assertSee('Validasi & Antrean', false);
+        $resOperational->assertSee('Validasi GPS Lokasi');
+        $resOperational->assertSee('Kontrol Rotasi Antrean Guide');
+
+        // 6. Test saving with active_tab preserves tab parameter
+        $resUpdate = $this->actingAs($this->admin)->post(route('settings.update'), [
+            'company_name' => 'ARTDEVATA',
+            'default_guide_fee' => 50000,
+            'default_phone_fee' => 15000,
+            'default_driver_fee' => 75000,
+            'active_tab' => 'tariffs',
+        ]);
+        $resUpdate->assertRedirect(route('settings.index', ['tab' => 'tariffs']));
+        $this->assertEquals('75000', Setting::get('default_driver_fee'));
+    }
+
+    public function test_admin_can_update_tour_package_from_settings(): void
+    {
+        $pkg = \App\Models\TourPackage::create([
+            'name' => 'Ubud Cultural Tour',
+            'duration' => '8 Jam',
+            'default_price' => 150000,
+            'status' => 'ACTIVE',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('packages.update', $pkg), [
+            'name' => 'Ubud Cultural & Waterfall Tour',
+            'duration' => '9 Jam',
+            'default_price' => 175000,
+            'status' => 'ACTIVE',
+            'from' => 'settings',
+        ]);
+
+        $response->assertRedirect(route('settings.index', ['tab' => 'packages']));
+        $this->assertEquals('Ubud Cultural & Waterfall Tour', $pkg->fresh()->name);
+        $this->assertEquals(175000, (float) $pkg->fresh()->default_price);
+        $this->assertEquals('9 Jam', $pkg->fresh()->duration);
+    }
 }

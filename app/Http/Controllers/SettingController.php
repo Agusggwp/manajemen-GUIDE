@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\GuideQueueState;
 use App\Models\Setting;
+use App\Models\TourPackage;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $settings = [
             'company_name' => Setting::get('company_name', Setting::get('app_name', 'ARTDEVATA')),
@@ -22,12 +23,23 @@ class SettingController extends Controller
             'company_address' => Setting::get('company_address', 'Jl. Sunset Road, Seminyak, Kuta, Bali'),
             'gps_required' => Setting::get('gps_required', '0'),
             'default_guide_fee' => Setting::get('default_guide_fee', '50000'),
+            'default_phone_fee' => Setting::get('default_phone_fee', '0'),
+            'default_driver_fee' => Setting::get('default_driver_fee', '50000'),
             'expense_categories' => Setting::getExpenseCategories(),
+            'operational_auto_schedule_enabled' => Setting::get('operational_auto_schedule_enabled', '0'),
+            'operational_auto_open_time' => Setting::get('operational_auto_open_time', '07:00'),
+            'operational_auto_close_time' => Setting::get('operational_auto_close_time', '18:00'),
+            'discord_webhook_enabled' => Setting::get('discord_webhook_enabled', '0'),
+            'discord_webhook_url' => Setting::get('discord_webhook_url', ''),
         ];
 
+        $operationalShift = app(\App\Services\OperationalShiftService::class)->getStatus();
         $queueState = GuideQueueState::getState();
+        $tourPackages = TourPackage::with('prices')->orderBy('name')->get();
+        $activeTab = $request->query('tab', 'brand');
+        $discordWebhookConfigured = !empty(app(\App\Services\DiscordWebhookService::class)->getWebhookUrl());
 
-        return view('settings.index', compact('settings', 'queueState'));
+        return view('settings.index', compact('settings', 'operationalShift', 'queueState', 'activeTab', 'tourPackages', 'discordWebhookConfigured'));
     }
 
     public function update(Request $request)
@@ -44,7 +56,12 @@ class SettingController extends Controller
             'company_address' => 'nullable|string',
             'gps_required' => 'nullable|in:0,1',
             'default_guide_fee' => 'required|numeric|min:0',
+            'default_phone_fee' => 'nullable|numeric|min:0',
+            'default_driver_fee' => 'nullable|numeric|min:0',
             'current_position' => 'nullable|integer|min:0',
+            'operational_auto_schedule_enabled' => 'nullable|in:0,1',
+            'operational_auto_open_time' => 'nullable|string|max:10',
+            'operational_auto_close_time' => 'nullable|string|max:10',
             'expense_categories' => 'nullable|array',
             'expense_categories.*' => 'nullable|string|max:100',
         ]);
@@ -60,7 +77,15 @@ class SettingController extends Controller
         Setting::set('company_address', $validated['company_address'] ?? '');
         Setting::set('gps_required', $request->input('gps_required', '0'));
         Setting::set('default_guide_fee', (string) $validated['default_guide_fee']);
-
+        Setting::set('default_phone_fee', (string) ($validated['default_phone_fee'] ?? 0));
+        Setting::set('default_driver_fee', (string) ($validated['default_driver_fee'] ?? 50000));
+        Setting::set('operational_auto_schedule_enabled', $request->input('operational_auto_schedule_enabled', '0'));
+        if ($request->filled('operational_auto_open_time')) {
+            Setting::set('operational_auto_open_time', $request->input('operational_auto_open_time'));
+        }
+        if ($request->filled('operational_auto_close_time')) {
+            Setting::set('operational_auto_close_time', $request->input('operational_auto_close_time'));
+        }
         if ($request->has('expense_categories')) {
             $categories = array_values(array_filter(array_map('trim', (array) $request->input('expense_categories'))));
             Setting::set('expense_categories', json_encode(!empty($categories) ? $categories : [
@@ -106,8 +131,44 @@ class SettingController extends Controller
             AuditLog::log('SET_QUEUE_POSITION', GuideQueueState::class, 1, ['current_position' => $oldPos], ['current_position' => $queueState->current_position]);
         }
 
-        AuditLog::log('UPDATE_SETTINGS', Setting::class);
+        $activeTab = $request->input('active_tab', 'brand');
 
-        return back()->with('success', 'Pengaturan sistem & logo berhasil diperbarui.');
+        return redirect()->route('settings.index', ['tab' => $activeTab])
+            ->with('success', 'Pengaturan sistem & logo berhasil diperbarui.');
+    }
+
+    /**
+     * Send test notification to Discord Webhook using .env configuration.
+     */
+    public function testDiscordWebhook(Request $request, \App\Services\DiscordWebhookService $discordService)
+    {
+        $url = $request->input('discord_webhook_url') ?: $discordService->getWebhookUrl();
+
+        if (empty($url)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'URL Webhook Discord belum diatur di file .env (DISCORD_WEBHOOK_URL). Silakan isi DISCORD_WEBHOOK_URL di file .env terlebih dahulu.',
+            ], 422);
+        }
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format URL Webhook Discord di .env tidak valid.',
+            ], 422);
+        }
+
+        $result = $discordService->sendTestNotification($url);
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message'],
+        ], 422);
     }
 }

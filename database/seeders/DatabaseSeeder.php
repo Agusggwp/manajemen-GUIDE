@@ -44,6 +44,8 @@ class DatabaseSeeder extends Seeder
         Setting::set('company_address', 'Jl. Sunset Road No. 88, Seminyak, Bali');
         Setting::set('gps_required', '0');
         Setting::set('default_guide_fee', '50000');
+        Setting::set('default_phone_fee', '20000');
+        Setting::set('default_driver_fee', '50000');
 
         // 3. Admin & Staff Users
         $adminUser = User::create([

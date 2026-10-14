@@ -1,44 +1,33 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-import Swal from 'sweetalert2';
+import ArtAlert from './art-alert';
 
 window.Alpine = Alpine;
-window.Swal = Swal;
+window.ArtAlert = ArtAlert;
+
+// Maintain window.Swal as alias to ArtAlert for 100% backward compatibility
+// so any existing scripts/views automatically use our custom styled alert!
+window.Swal = ArtAlert;
 
 // Global Toast / Alert Helpers with ARTDEVATA Clay theme
 window.toastSuccess = function (message, title = 'Berhasil!') {
-    return Swal.fire({
-        icon: 'success',
-        title: title,
-        text: message,
-        confirmButtonColor: '#6C63FF',
-        confirmButtonText: 'OK',
-        timer: 3500,
-        timerProgressBar: true,
-    });
+    return ArtAlert.toast(message, 'success', title);
 };
 
 window.toastError = function (message, title = 'Perhatian') {
-    return Swal.fire({
-        icon: 'error',
-        title: title,
-        text: message,
-        confirmButtonColor: '#6C63FF',
-        confirmButtonText: 'Tutup',
-    });
+    return ArtAlert.toast(message, 'error', title);
 };
 
 window.confirmAction = function (message, onConfirm, title = 'Konfirmasi Tindakan', icon = 'warning', confirmBtn = 'Ya, Lanjutkan!') {
-    return Swal.fire({
+    const isDanger = icon === 'danger' || confirmBtn.toLowerCase().includes('hapus') || confirmBtn.toLowerCase().includes('tutup');
+    return ArtAlert.fire({
         title: title,
         text: message,
-        icon: icon,
+        icon: isDanger ? 'danger' : icon,
         showCancelButton: true,
-        confirmButtonColor: '#6C63FF',
-        cancelButtonColor: '#94a3b8',
         confirmButtonText: confirmBtn,
         cancelButtonText: 'Batal',
-        reverseButtons: true,
+        isDanger: isDanger,
     }).then((result) => {
         if (result.isConfirmed && typeof onConfirm === 'function') {
             onConfirm();
@@ -58,16 +47,14 @@ document.addEventListener('submit', function (e) {
             const confirmBtn = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan!';
             const isDanger = form.getAttribute('data-confirm-danger') === 'true';
 
-            Swal.fire({
+            ArtAlert.fire({
                 title: title,
                 text: message,
-                icon: icon,
+                icon: isDanger ? 'danger' : icon,
                 showCancelButton: true,
-                confirmButtonColor: isDanger ? '#e11d48' : '#6C63FF',
-                cancelButtonColor: '#94a3b8',
                 confirmButtonText: confirmBtn,
                 cancelButtonText: 'Batal',
-                reverseButtons: true,
+                isDanger: isDanger,
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.dataset.confirmed = 'true';

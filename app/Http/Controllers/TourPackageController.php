@@ -67,6 +67,10 @@ class TourPackageController extends Controller
             AuditLog::log('CREATE_TOUR_PACKAGE', TourPackage::class, $package->id, null, ['name' => $package->name]);
         });
 
+        if ($request->input('from') === 'settings' || $request->input('redirect_to') === 'settings') {
+            return redirect()->route('settings.index', ['tab' => 'packages'])->with('success', "Paket wisata '{$validated['name']}' berhasil dibuat.");
+        }
+
         return redirect()->route('packages.index')->with('success', 'Paket wisata berhasil dibuat.');
     }
 
@@ -125,10 +129,14 @@ class TourPackageController extends Controller
             AuditLog::log('UPDATE_TOUR_PACKAGE', TourPackage::class, $package->id);
         });
 
+        if ($request->input('from') === 'settings' || $request->input('redirect_to') === 'settings') {
+            return redirect()->route('settings.index', ['tab' => 'packages'])->with('success', "Paket wisata '{$validated['name']}' berhasil diperbarui.");
+        }
+
         return redirect()->route('packages.index')->with('success', 'Paket wisata berhasil diperbarui.');
     }
 
-    public function destroy(TourPackage $package)
+    public function destroy(Request $request, TourPackage $package)
     {
         $packageName = $package->name;
 
@@ -137,6 +145,10 @@ class TourPackageController extends Controller
             $package->delete();
             AuditLog::log('DELETE_TOUR_PACKAGE', TourPackage::class, $package->id, ['name' => $packageName], null);
         });
+
+        if ($request->input('from') === 'settings' || $request->input('redirect_to') === 'settings') {
+            return redirect()->route('settings.index', ['tab' => 'packages'])->with('success', "Paket wisata '{$packageName}' dan seluruh skema harga berhasil dihapus.");
+        }
 
         return redirect()->route('packages.index')->with('success', "Paket wisata '{$packageName}' dan seluruh skema harga berhasil dihapus.");
     }

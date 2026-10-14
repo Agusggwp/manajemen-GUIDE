@@ -19,6 +19,101 @@
         </form>
     </div>
 
+    @php
+        $shiftService = app(\App\Services\OperationalShiftService::class);
+        $shiftStatus = $shiftService->getStatus($selectedDate);
+        $isToday = ($selectedDate === \Carbon\Carbon::today()->toDateString());
+    @endphp
+
+    <!-- Operational Shift Banner (Sistem Kasir Buka/Tutup) -->
+    <div class="clay-card p-5 border {{ $shiftStatus['is_open'] ? 'border-[#72D6C9]/60 bg-gradient-to-r from-[#72D6C9]/10 via-white to-white' : 'border-rose-200 bg-gradient-to-r from-rose-50/70 via-white to-white' }} flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl {{ $shiftStatus['is_open'] ? 'bg-[#72D6C9]/20 text-[#147a6f]' : 'bg-rose-100 text-rose-700' }} flex items-center justify-center shrink-0 shadow-xs">
+                @if($shiftStatus['is_open'])
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                    </svg>
+                @else
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                @endif
+            </div>
+            <div class="space-y-0.5">
+                <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm font-extrabold text-[#29283D] font-display">Status Operasional Loket:</h3>
+                    @if($shiftStatus['is_open'])
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-[#72D6C9]/25 text-[#147a6f] border border-[#72D6C9]/60 inline-flex items-center gap-1.5 shadow-2xs">
+                            <span class="w-2 h-2 rounded-full bg-[#147a6f] animate-pulse"></span>
+                            LOKET BUKA
+                        </span>
+                    @else
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1.5 shadow-2xs">
+                            <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                            LOKET TUTUP
+                        </span>
+                    @endif
+                </div>
+                <p class="text-xs text-[#77768C]">
+                    @if($shiftStatus['is_open'])
+                        Loket aktif menerima absensi guide. Saat staf/admin menutup loket, seluruh guide aktif akan otomatis di-checkout.
+                    @else
+                        Loket saat ini TUTUP. Guide tidak dapat melakukan check-in mandiri hingga staf/admin membuka loket.
+                    @endif
+                </p>
+            </div>
+        </div>
+
+        <div class="shrink-0 flex items-center gap-2">
+            @if($shiftStatus['is_open'])
+                <form action="{{ route('operational.close') }}" method="POST"
+                      data-confirm="Konfirmasi Tutup Loket Operasional? Semua guide yang saat ini berstatus CHECK-IN ({{ $checkedInCount }} orang) akan OTOMATIS di-checkout oleh sistem!"
+                      data-confirm-title="Tutup Loket Operasional"
+                      data-confirm-danger="true"
+                      data-confirm-btn="Ya, Tutup Loket Sekarang">
+                    @csrf
+                    <input type="hidden" name="date" value="{{ $selectedDate }}">
+                    <input type="hidden" name="reason" value="Penutupan loket dari halaman absensi">
+                    <button type="submit" class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Tutup Loket (Auto Checkout)</span>
+                    </button>
+                </form>
+            @else
+                @if($checkedInCount > 0)
+                    <form action="{{ route('operational.close') }}" method="POST"
+                          data-confirm="Terdapat {{ $checkedInCount }} guide yang masih berstatus CHECK-IN pada tanggal ini. Lakukan Force Tutup Loket untuk checkout seluruh guide tersebut?"
+                          data-confirm-title="Force Tutup Loket"
+                          data-confirm-danger="true"
+                          data-confirm-btn="Ya, Force Checkout Semua">
+                        @csrf
+                        <input type="hidden" name="date" value="{{ $selectedDate }}">
+                        <input type="hidden" name="reason" value="Force tutup loket dari lembar absensi">
+                        <button type="submit" class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer animate-pulse">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Force Tutup & Checkout ({{ $checkedInCount }})</span>
+                        </button>
+                    </form>
+                @endif
+
+                <form action="{{ route('operational.open') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="date" value="{{ $selectedDate }}">
+                    <button type="submit" class="clay-btn bg-[#72D6C9] hover:bg-[#5fc0b3] text-[#147a6f] border-[#72D6C9] px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                        </svg>
+                        <span>Buka Loket Operasional</span>
+                    </button>
+                </form>
+            @endif
+        </div>
+    </div>
+
     <!-- Attendance Quick Metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="clay-card p-4 flex items-center justify-between">
