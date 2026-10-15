@@ -192,7 +192,13 @@ class SettingLogoTest extends TestCase
         $resOperational->assertSee('Validasi GPS Lokasi');
         $resOperational->assertSee('Kontrol Rotasi Antrean Guide');
 
-        // 6. Test saving with active_tab preserves tab parameter
+        // 6. Check Roles & Permissions Tab
+        $resRoles = $this->actingAs($this->admin)->get(route('settings.index', ['tab' => 'roles']));
+        $resRoles->assertStatus(200);
+        $resRoles->assertSee('Hak Akses Pengguna');
+        $resRoles->assertSee('+ Tambah Role Baru');
+
+        // 7. Test saving with active_tab preserves tab parameter
         $resUpdate = $this->actingAs($this->admin)->post(route('settings.update'), [
             'company_name' => 'ARTDEVATA',
             'default_guide_fee' => 50000,

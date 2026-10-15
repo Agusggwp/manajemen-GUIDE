@@ -70,6 +70,81 @@
                  description: ''
              };
              this.addPackageModal = true;
+         },
+         // Role Management Modals & State
+         addRoleModal: false,
+         editRoleModal: false,
+         newRoleForm: {
+             name: '',
+             label: '',
+             description: '',
+             permissions: []
+         },
+         editRoleForm: {
+             id: null,
+             actionUrl: '',
+             name: '',
+             label: '',
+             description: '',
+             is_protected: false,
+             permissions: []
+         },
+         openAddRole() {
+             this.newRoleForm = {
+                 name: '',
+                 label: '',
+                 description: '',
+                 permissions: []
+             };
+             this.addRoleModal = true;
+         },
+         openEditRole(role) {
+             this.editRoleForm = {
+                 id: role.id,
+                 actionUrl: '{{ url('/settings/roles') }}/' + role.id,
+                 name: role.name,
+                 label: role.label,
+                 description: role.description || '',
+                 is_protected: !!role.is_system,
+                 permissions: Array.isArray(role.permissions) ? [...role.permissions] : []
+             };
+             this.editRoleModal = true;
+         },
+         toggleNewRolePerm(perm) {
+             const idx = this.newRoleForm.permissions.indexOf(perm);
+             if (idx > -1) {
+                 this.newRoleForm.permissions.splice(idx, 1);
+             } else {
+                 this.newRoleForm.permissions.push(perm);
+             }
+         },
+         toggleEditRolePerm(perm) {
+             const idx = this.editRoleForm.permissions.indexOf(perm);
+             if (idx > -1) {
+                 this.editRoleForm.permissions.splice(idx, 1);
+             } else {
+                 this.editRoleForm.permissions.push(perm);
+             }
+         },
+         toggleCategoryNew(categoryKeys, selectAll) {
+             categoryKeys.forEach(k => {
+                 const idx = this.newRoleForm.permissions.indexOf(k);
+                 if (selectAll && idx === -1) {
+                     this.newRoleForm.permissions.push(k);
+                 } else if (!selectAll && idx > -1) {
+                     this.newRoleForm.permissions.splice(idx, 1);
+                 }
+             });
+         },
+         toggleCategoryEdit(categoryKeys, selectAll) {
+             categoryKeys.forEach(k => {
+                 const idx = this.editRoleForm.permissions.indexOf(k);
+                 if (selectAll && idx === -1) {
+                     this.editRoleForm.permissions.push(k);
+                 } else if (!selectAll && idx > -1) {
+                     this.editRoleForm.permissions.splice(idx, 1);
+                 }
+             });
          }
      }">
 
@@ -95,7 +170,7 @@
     </div>
 
     <!-- Sub Menu Navigation (Tab Bar) -->
-    <div class="clay-card p-1.5 bg-[#F4F3FA] border border-[#E8E6F0] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
+    <div class="clay-card p-1.5 bg-[#F4F3FA] border border-[#E8E6F0] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
         <!-- Sub-Menu 1: Identitas & Brand -->
         <button type="button" 
                 @click="updateTab('brand')"
@@ -150,10 +225,21 @@
             </svg>
             <span class="truncate">Operasional & Shift</span>
         </button>
+
+        <!-- Sub-Menu 6: Role & Hak Akses -->
+        <button type="button" 
+                @click="updateTab('roles')"
+                :class="activeTab === 'roles' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span class="truncate">Role & Hak Akses</span>
+        </button>
     </div>
 
-    <!-- Main Settings Form (Hidden when on packages tab) -->
-    <form id="main-settings-form" x-show="activeTab !== 'packages'" action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6 text-xs">
+    <!-- Main Settings Form (Hidden when on packages or roles tab) -->
+    <form id="main-settings-form" x-show="activeTab !== 'packages' && activeTab !== 'roles'" action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6 text-xs">
         @csrf
         <input type="hidden" name="active_tab" :value="activeTab">
 
@@ -835,6 +921,11 @@
             @endforelse
         </div>
     </div>
+
+    <!-- ========================================== -->
+    <!-- SUB-MENU 6: ROLE & HAK AKSES PENGGUNA      -->
+    <!-- ========================================== -->
+    @include('settings.partials.roles')
 
     <!-- MODAL: QUICK EDIT TOUR PACKAGE -->
     <div x-show="editPackageModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">

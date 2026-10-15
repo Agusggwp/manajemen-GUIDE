@@ -21,14 +21,14 @@ class UserApprovalController extends Controller
         $roleFilter = $request->query('role');
         $search = $request->query('search');
 
-        $query = User::whereIn('role', ['STAFF', 'GUIDE', 'ADMIN'])
+        $query = User::query()
             ->orderBy('created_at', 'desc');
 
         if ($statusFilter !== 'ALL') {
             $query->where('approval_status', $statusFilter);
         }
 
-        if (!empty($roleFilter) && in_array($roleFilter, ['STAFF', 'GUIDE', 'ADMIN'])) {
+        if (!empty($roleFilter)) {
             $query->where('role', $roleFilter);
         }
 
@@ -41,10 +41,10 @@ class UserApprovalController extends Controller
 
         $users = $query->paginate(15)->withQueryString();
 
-        $pendingCount = User::whereIn('role', ['STAFF', 'GUIDE', 'ADMIN'])->where('approval_status', 'PENDING')->count();
-        $approvedCount = User::whereIn('role', ['STAFF', 'GUIDE', 'ADMIN'])->where('approval_status', 'APPROVED')->count();
-        $rejectedCount = User::whereIn('role', ['STAFF', 'GUIDE', 'ADMIN'])->where('approval_status', 'REJECTED')->count();
-        $totalCount = User::whereIn('role', ['STAFF', 'GUIDE', 'ADMIN'])->count();
+        $pendingCount = User::where('approval_status', 'PENDING')->count();
+        $approvedCount = User::where('approval_status', 'APPROVED')->count();
+        $rejectedCount = User::where('approval_status', 'REJECTED')->count();
+        $totalCount = User::count();
 
         $counts = [
             'pending' => $pendingCount,

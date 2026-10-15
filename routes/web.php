@@ -141,6 +141,11 @@ Route::middleware(['auth', 'role:ADMIN'])->group(function () {
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::post('/settings/test-discord', [SettingController::class, 'testDiscordWebhook'])->name('settings.test-discord');
 
+    // Role & Permission Management
+    Route::post('/settings/roles', [\App\Http\Controllers\RoleController::class, 'store'])->name('roles.store');
+    Route::put('/settings/roles/{role}', [\App\Http\Controllers\RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/settings/roles/{role}', [\App\Http\Controllers\RoleController::class, 'destroy'])->name('roles.destroy');
+
     // User Registration Approvals (ACC Staff/Admin)
     Route::get('/user-approvals', [UserApprovalController::class, 'index'])->name('admin.user-approvals.index');
     Route::post('/user-approvals/{user}/approve', [UserApprovalController::class, 'approve'])->name('admin.user-approvals.approve');

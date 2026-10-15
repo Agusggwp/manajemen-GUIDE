@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\GuideQueueState;
+use App\Models\Role;
 use App\Models\Setting;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
@@ -39,7 +40,19 @@ class SettingController extends Controller
         $activeTab = $request->query('tab', 'brand');
         $discordWebhookConfigured = !empty(app(\App\Services\DiscordWebhookService::class)->getWebhookUrl());
 
-        return view('settings.index', compact('settings', 'operationalShift', 'queueState', 'activeTab', 'tourPackages', 'discordWebhookConfigured'));
+        $roles = Role::withCount('users')->orderBy('id')->get();
+        $availablePermissions = Role::availablePermissions();
+
+        return view('settings.index', compact(
+            'settings',
+            'operationalShift',
+            'queueState',
+            'activeTab',
+            'tourPackages',
+            'discordWebhookConfigured',
+            'roles',
+            'availablePermissions'
+        ));
     }
 
     public function update(Request $request)

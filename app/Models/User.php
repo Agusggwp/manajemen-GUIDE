@@ -84,6 +84,20 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'GUIDE';
     }
 
+    public function roleModel()
+    {
+        return $this->belongsTo(Role::class, 'role', 'name');
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return $this->roleModel?->hasPermission($permission) ?? false;
+    }
+
     public function guide()
     {
         return $this->hasOne(Guide::class, 'user_id');
