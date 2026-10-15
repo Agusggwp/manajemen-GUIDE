@@ -42,7 +42,17 @@ class GuideController extends Controller
     public function create()
     {
         $nextQueueNumber = (Guide::max('queue_number') ?? 0) + 1;
-        $nextCode = sprintf('GD-%03d', (Guide::count() + 1));
+        $maxNum = Guide::where('kode_guide', 'like', 'GD-%')
+            ->get()
+            ->map(function ($g) {
+                return preg_match('/GD-(\d+)/', $g->kode_guide, $m) ? (int) $m[1] : 0;
+            })
+            ->max() ?? 0;
+        $nextCode = sprintf('GD-%03d', max($maxNum + 1, Guide::count() + 1));
+        while (Guide::where('kode_guide', $nextCode)->exists()) {
+            $maxNum++;
+            $nextCode = sprintf('GD-%03d', $maxNum);
+        }
 
         return view('guides.create', compact('nextQueueNumber', 'nextCode'));
     }

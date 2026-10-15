@@ -76,8 +76,9 @@ class DashboardController extends Controller
         $checkedOutCount = $todayAttendances->where('status', 'CHECKED_OUT')->count();
 
         $allGuides = Guide::where('status', '!=', 'INACTIVE')->get();
-        $guidesAvailable = $allGuides->where('status', 'AVAILABLE')->filter(function ($g) use ($today) {
-            return $g->isCheckedInOn($today);
+        $checkedInGuideIds = $todayAttendances->where('status', 'CHECKED_IN')->pluck('guide_id')->flip();
+        $guidesAvailable = $allGuides->where('status', 'AVAILABLE')->filter(function ($g) use ($checkedInGuideIds) {
+            return isset($checkedInGuideIds[$g->id]);
         })->count();
         $guidesOnTour = $allGuides->where('status', 'ON_TOUR')->count();
 

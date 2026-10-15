@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AuditLog;
 use App\Models\Guide;
+use App\Models\GuideAssignment;
 use App\Models\GuidePayment;
 use Carbon\Carbon;
 use Exception;
@@ -110,17 +111,32 @@ class PayrollService
                 throw new Exception("Nominal pembayaran harus lebih besar dari 0.");
             }
 
-            $currentPayroll = $this->getGuidePayroll($guide);
-            if ($amount > $currentPayroll->remaining && !$adminOverride) {
-                throw new Exception("Nominal pembayaran (Rp " . number_format($amount, 0, ',', '.') . ") melebihi sisa fee yang belum dibayar (Rp " . number_format($currentPayroll->remaining, 0, ',', '.') . ").");
+            // Lock guide record to serialize concurrent payments for this guide
+            $guideModel = Guide::where('id', $guide->id)->lockForUpdate()->firstOrFail();
+
+            // Lock and calculate current valid payments and fees under pessimistic lock
+            $totalPaid = (float) GuidePayment::where('guide_id', $guideModel->id)->lockForUpdate()->sum('amount');
+            $totalFee = (float) GuideAssignment::where('guide_id', $guideModel->id)->where('status', '!=', 'CANCELLED')->sum('fee_amount');
+            $remaining = max(0, $totalFee - $totalPaid);
+
+            if ($amount > $remaining && !$adminOverride) {
+                throw new Exception("Nominal pembayaran (Rp " . number_format($amount, 0, ',', '.') . ") melebihi sisa fee yang belum dibayar (Rp " . number_format($remaining, 0, ',', '.') . ").");
             }
 
             $prefix = 'PAY-' . Carbon::parse($paymentDate)->format('ymd');
-            $count = GuidePayment::where('payment_code', 'like', $prefix . '-%')->count();
-            $paymentCode = sprintf('%s-%03d', $prefix, $count + 1);
+            $maxCode = GuidePayment::where('payment_code', 'like', $prefix . '-%')
+                ->lockForUpdate()
+                ->orderBy('payment_code', 'desc')
+                ->value('payment_code');
+
+            $seq = 1;
+            if ($maxCode && preg_match('/-(\d+)$/', $maxCode, $matches)) {
+                $seq = ((int) $matches[1]) + 1;
+            }
+            $paymentCode = sprintf('%s-%03d', $prefix, $seq);
 
             $payment = GuidePayment::create([
-                'guide_id' => $guide->id,
+                'guide_id' => $guideModel->id,
                 'payment_code' => $paymentCode,
                 'amount' => $amount,
                 'payment_date' => $paymentDate,
@@ -130,7 +146,7 @@ class PayrollService
             ]);
 
             AuditLog::log('PAYMENT_GUIDE', GuidePayment::class, $payment->id, null, [
-                'guide_id' => $guide->id,
+                'guide_id' => $guideModel->id,
                 'payment_code' => $paymentCode,
                 'amount' => $amount,
                 'payment_date' => $paymentDate,

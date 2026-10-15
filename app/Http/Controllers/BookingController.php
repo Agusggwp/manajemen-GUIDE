@@ -107,34 +107,63 @@ class BookingController extends Controller
             $assignedGuideIds
         );
 
-        // All active guides for smart manual assignment selector
+        // All active guides for smart manual assignment selector with batch prefetching (No N+1)
         $allGuides = Guide::where('status', '!=', 'INACTIVE')
             ->orderBy('queue_number', 'asc')
+            ->get();
+        $guideIds = $allGuides->pluck('id');
+
+        $todayAttendances = \App\Models\GuideAttendance::whereIn('guide_id', $guideIds)
+            ->whereDate('attendance_date', $today)
             ->get()
-            ->map(function (Guide $guide) use ($booking, $queueService, $today) {
-                $attendance = $guide->attendances()->where('attendance_date', $today)->first();
-                $isCheckedIn = $attendance && $attendance->status === 'CHECKED_IN';
-                $isAlreadyAssigned = $booking->assignments()->where('guide_id', $guide->id)->where('status', '!=', 'CANCELLED')->exists();
-                $hasConflict = $queueService->hasScheduleConflict($guide->id, $today, $booking->start_time, $booking->end_time, $booking->id);
+            ->keyBy('guide_id');
 
-                $todayAssignments = $guide->assignments()
-                    ->whereHas('booking', fn($b) => $b->where('booking_date', $today))
-                    ->where('status', '!=', 'CANCELLED')
-                    ->get();
+        $assignedGuideIdsSet = array_flip($assignedGuideIds);
 
-                $isAvailable = $isCheckedIn && !$hasConflict && !$isAlreadyAssigned && $guide->status !== 'OFF';
+        $todayGuideAssignments = \App\Models\GuideAssignment::whereIn('guide_id', $guideIds)
+            ->whereHas('booking', fn($b) => $b->whereDate('booking_date', $today))
+            ->where('status', '!=', 'CANCELLED')
+            ->get()
+            ->groupBy('guide_id');
 
-                return (object) [
-                    'guide' => $guide,
-                    'is_available' => $isAvailable,
-                    'is_checked_in' => $isCheckedIn,
-                    'has_conflict' => $hasConflict,
-                    'is_already_assigned' => $isAlreadyAssigned,
-                    'today_jobs' => $todayAssignments->count(),
-                    'today_guests' => $todayAssignments->sum('guest_count'),
-                    'today_earnings' => $todayAssignments->sum('fee_amount'),
-                ];
-            });
+        $guidesWithConflict = [];
+        if ($booking->start_time && $booking->end_time) {
+            $guidesWithConflict = \App\Models\GuideAssignment::whereIn('guide_id', $guideIds)
+                ->whereIn('status', ['ASSIGNED', 'ON_GOING'])
+                ->whereHas('booking', function ($q) use ($today, $booking) {
+                    $q->whereDate('booking_date', $today)
+                      ->where('status', '!=', 'CANCELLED')
+                      ->where('id', '!=', $booking->id)
+                      ->where('start_time', '<', $booking->end_time)
+                      ->where('end_time', '>', $booking->start_time);
+                })
+                ->pluck('guide_id')
+                ->unique()
+                ->toArray();
+        }
+        $conflictGuideIdsSet = array_flip($guidesWithConflict);
+
+        $allGuides = $allGuides->map(function (Guide $guide) use ($todayAttendances, $assignedGuideIdsSet, $conflictGuideIdsSet, $todayGuideAssignments) {
+            $attendance = $todayAttendances->get($guide->id);
+            $isCheckedIn = $attendance && $attendance->status === 'CHECKED_IN';
+            $isAlreadyAssigned = isset($assignedGuideIdsSet[$guide->id]);
+            $hasConflict = isset($conflictGuideIdsSet[$guide->id]);
+
+            $todayAssignments = $todayGuideAssignments->get($guide->id, collect());
+
+            $isAvailable = $isCheckedIn && !$hasConflict && !$isAlreadyAssigned && $guide->status !== 'OFF';
+
+            return (object) [
+                'guide' => $guide,
+                'is_available' => $isAvailable,
+                'is_checked_in' => $isCheckedIn,
+                'has_conflict' => $hasConflict,
+                'is_already_assigned' => $isAlreadyAssigned,
+                'today_jobs' => $todayAssignments->count(),
+                'today_guests' => $todayAssignments->sum('guest_count'),
+                'today_earnings' => $todayAssignments->sum('fee_amount'),
+            ];
+        });
 
         return view('bookings.show', compact('booking', 'nextCandidateResult', 'allGuides'));
     }
@@ -228,18 +257,36 @@ class BookingController extends Controller
     public function removeAssignment(GuideAssignment $assignment)
     {
         try {
+            if ($assignment->status === 'COMPLETED') {
+                throw new Exception("Penugasan yang sudah selesai (COMPLETED) tidak dapat dibatalkan.");
+            }
+
             $booking = $assignment->booking;
             $guide = $assignment->guide;
 
-            $assignment->status = 'CANCELLED';
-            $assignment->save();
+            \Illuminate\Support\Facades\DB::transaction(function () use ($assignment, $booking, $guide) {
+                $assignment->status = 'CANCELLED';
+                $assignment->save();
 
-            AuditLog::log('REMOVE_ASSIGNMENT', GuideAssignment::class, $assignment->id, null, [
-                'booking_id' => $booking->id,
-                'guide_id' => $guide->id,
-            ]);
+                // If guide was ON_TOUR for this assignment and has no other ongoing assignment, set AVAILABLE
+                if ($guide && $guide->status === 'ON_TOUR') {
+                    $otherOnGoing = GuideAssignment::where('guide_id', $guide->id)
+                        ->where('status', 'ON_GOING')
+                        ->where('id', '!=', $assignment->id)
+                        ->exists();
+                    if (!$otherOnGoing) {
+                        $guide->status = 'AVAILABLE';
+                        $guide->save();
+                    }
+                }
 
-            $booking->recalculateTotals();
+                AuditLog::log('REMOVE_ASSIGNMENT', GuideAssignment::class, $assignment->id, null, [
+                    'booking_id' => $booking->id,
+                    'guide_id' => $guide->id,
+                ]);
+
+                $booking->recalculateTotals();
+            });
 
             return back()->with('success', "Penugasan Guide {$guide->nama} berhasil dibatalkan.");
         } catch (Exception $e) {
@@ -280,5 +327,43 @@ class BookingController extends Controller
             'estimated_profit' => $estProfit,
             'estimated_profit_formatted' => 'Rp ' . number_format($estProfit, 0, ',', '.'),
         ]);
+    }
+
+    /**
+     * Delete an existing booking.
+     */
+    public function destroy(Booking $booking)
+    {
+        if ($booking->status === 'ON_GOING') {
+            return back()->with('error', 'Booking dengan tour yang sedang berlangsung tidak dapat dihapus.');
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($booking) {
+            // Cancel any pending assignments and restore guide availability
+            foreach ($booking->assignments as $assignment) {
+                if ($assignment->status !== 'COMPLETED') {
+                    $assignment->status = 'CANCELLED';
+                    $assignment->save();
+
+                    if ($assignment->guide) {
+                        $hasOtherActive = \App\Models\GuideAssignment::where('guide_id', $assignment->guide_id)
+                            ->where('id', '!=', $assignment->id)
+                            ->whereIn('status', ['ASSIGNED', 'ON_GOING'])
+                            ->exists();
+                        if (!$hasOtherActive && in_array($assignment->guide->status, ['ON_TOUR', 'ASSIGNED'])) {
+                            $assignment->guide->status = 'AVAILABLE';
+                            $assignment->guide->save();
+                        }
+                    }
+                }
+            }
+
+            $code = $booking->booking_code;
+            $booking->delete();
+
+            AuditLog::log('DELETE_BOOKING', Booking::class, $booking->id, ['booking_code' => $code]);
+        });
+
+        return redirect()->route('bookings.index')->with('success', "Booking {$booking->booking_code} berhasil dihapus.");
     }
 }

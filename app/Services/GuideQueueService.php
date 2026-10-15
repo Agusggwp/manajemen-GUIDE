@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\Guide;
 use App\Models\GuideAssignment;
+use App\Models\GuideAttendance;
 use App\Models\GuideQueueState;
 use App\Models\QueueHistory;
 use App\Models\User;
@@ -56,6 +57,32 @@ class GuideQueueService
 
         $searchSequence = $higherQueueGuides->concat($wrapAroundGuides);
 
+        // Batch prefetch attendance and schedule conflicts to eliminate N+1 query loop
+        $guideIds = $allGuides->pluck('id');
+        $attendances = GuideAttendance::whereIn('guide_id', $guideIds)
+            ->whereDate('attendance_date', $targetDate)
+            ->get()
+            ->keyBy('guide_id');
+
+        $conflictingGuideIds = [];
+        if ($targetStartTime && $targetEndTime) {
+            $conflictingGuideIds = GuideAssignment::whereIn('guide_id', $guideIds)
+                ->whereIn('status', ['ASSIGNED', 'ON_GOING'])
+                ->whereHas('booking', function ($q) use ($targetDate, $targetStartTime, $targetEndTime, $booking) {
+                    $q->whereDate('booking_date', $targetDate)
+                      ->where('status', '!=', 'CANCELLED');
+                    if ($booking) {
+                        $q->where('id', '!=', $booking->id);
+                    }
+                    $q->where('start_time', '<', $targetEndTime)
+                      ->where('end_time', '>', $targetStartTime);
+                })
+                ->pluck('guide_id')
+                ->unique()
+                ->toArray();
+        }
+        $conflictsSet = array_flip($conflictingGuideIds);
+
         $skipped = [];
         $selectedGuide = null;
 
@@ -102,10 +129,8 @@ class GuideQueueService
                 continue;
             }
 
-            // Check today's attendance for the target date
-            $attendance = $candidate->attendances()
-                ->whereDate('attendance_date', $targetDate)
-                ->first();
+            // Check today's attendance for the target date from prefetched map
+            $attendance = $attendances->get($candidate->id);
 
             if (!$attendance || $attendance->status !== 'CHECKED_IN') {
                 $reason = 'Belum Check-in';
@@ -138,8 +163,7 @@ class GuideQueueService
 
             // Check schedule conflict with existing active assignments
             if ($targetStartTime && $targetEndTime) {
-                $hasConflict = $this->hasScheduleConflict($candidate->id, $targetDate, $targetStartTime, $targetEndTime, $booking ? $booking->id : null);
-                if ($hasConflict) {
+                if (isset($conflictsSet[$candidate->id])) {
                     $skipped[] = [
                         'guide_id' => $candidate->id,
                         'queue_number' => $candidate->queue_number,
@@ -285,7 +309,20 @@ class GuideQueueService
     public function autoAssignMultiple(Booking $booking, array $guestAllocations, ?User $assignedBy = null): array
     {
         return DB::transaction(function () use ($booking, $guestAllocations, $assignedBy) {
-            $totalAllocated = array_sum($guestAllocations);
+            $cleanedAllocations = [];
+            foreach ($guestAllocations as $g) {
+                $val = (int) $g;
+                if ($val <= 0) {
+                    throw new Exception("Jumlah alokasi tamu per guide harus lebih besar dari 0.");
+                }
+                $cleanedAllocations[] = $val;
+            }
+
+            if (empty($cleanedAllocations)) {
+                throw new Exception("Daftar alokasi tamu tidak boleh kosong.");
+            }
+
+            $totalAllocated = array_sum($cleanedAllocations);
             $alreadyAssignedCount = $booking->assignedGuestsCount();
 
             if (($alreadyAssignedCount + $totalAllocated) > $booking->guest_count) {
@@ -293,10 +330,7 @@ class GuideQueueService
             }
 
             $assignments = [];
-            foreach ($guestAllocations as $guests) {
-                if ($guests <= 0) {
-                    continue;
-                }
+            foreach ($cleanedAllocations as $guests) {
                 $assignments[] = $this->autoAssign($booking, $guests, $assignedBy);
             }
 

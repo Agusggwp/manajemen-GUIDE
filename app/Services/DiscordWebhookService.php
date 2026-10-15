@@ -356,6 +356,7 @@ class DiscordWebhookService
         ];
 
         try {
+            $masked = $this->maskUrl($webhookUrl);
             $response = Http::timeout(6)->post($webhookUrl, $payload);
             if ($response->successful()) {
                 return [
@@ -377,14 +378,44 @@ class DiscordWebhookService
     }
 
     /**
-     * Perform HTTP POST request to Discord Webhook with error catching.
+     * Perform HTTP POST request to Discord Webhook with error catching, rate-limit retry, and URL masking.
      */
     protected function postWebhook(string $url, array $payload): bool
     {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            Log::warning('Discord Webhook URL tidak valid: ' . $this->maskUrl($url));
+            return false;
+        }
+
+        // Sanitize embed fields so none exceed Discord's 1024 char limit
+        if (!empty($payload['embeds'])) {
+            foreach ($payload['embeds'] as &$embed) {
+                if (!empty($embed['fields'])) {
+                    foreach ($embed['fields'] as &$field) {
+                        if (isset($field['value']) && mb_strlen($field['value']) > 1000) {
+                            $field['value'] = mb_substr($field['value'], 0, 996) . '...';
+                        }
+                    }
+                }
+            }
+        }
+
+        $maskedUrl = $this->maskUrl($url);
+
         try {
             $response = Http::timeout(6)->post($url, $payload);
+
+            // Handle HTTP 429 Rate Limiting with single safe retry
+            if ($response->status() === 429) {
+                $retryAfter = (int) $response->header('Retry-After', 1);
+                $delay = min(2, max(1, $retryAfter));
+                sleep($delay);
+                $response = Http::timeout(6)->post($url, $payload);
+            }
+
             if (!$response->successful()) {
                 Log::warning('Discord Webhook notification failed', [
+                    'url' => $maskedUrl,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -394,9 +425,18 @@ class DiscordWebhookService
             return true;
         } catch (Exception $e) {
             Log::error('Exception while posting to Discord Webhook: ' . $e->getMessage(), [
+                'url' => $maskedUrl,
                 'trace' => $e->getTraceAsString(),
             ]);
             return false;
         }
+    }
+
+    /**
+     * Mask secret token from webhook URL for safe logging.
+     */
+    protected function maskUrl(string $url): string
+    {
+        return preg_replace('/(\/api\/webhooks\/\d+\/)[^\/\s]+/', '$1***', $url) ?? $url;
     }
 }

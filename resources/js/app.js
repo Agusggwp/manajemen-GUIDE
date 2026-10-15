@@ -35,10 +35,12 @@ window.confirmAction = function (message, onConfirm, title = 'Konfirmasi Tindaka
     });
 };
 
-// Global Listener for Forms with data-confirm
+// Global Listener for Forms with data-confirm & Global Double-Submit Prevention
 document.addEventListener('submit', function (e) {
     const form = e.target;
-    if (form && form.hasAttribute('data-confirm')) {
+    if (!form || form.tagName !== 'FORM') return;
+
+    if (form.hasAttribute('data-confirm')) {
         if (!form.dataset.confirmed) {
             e.preventDefault();
             const message = form.getAttribute('data-confirm');
@@ -61,8 +63,40 @@ document.addEventListener('submit', function (e) {
                     form.submit();
                 }
             });
+            return;
         }
     }
+
+    // Double-submit prevention
+    if (form.dataset.submitting === 'true') {
+        e.preventDefault();
+        return;
+    }
+
+    form.dataset.submitting = 'true';
+
+    // Gracefully disable submit buttons after a minimal tick to allow form values to be captured
+    setTimeout(() => {
+        const submitBtns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+        submitBtns.forEach((btn) => {
+            btn.setAttribute('data-original-disabled', btn.disabled);
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+        });
+    }, 10);
+});
+
+// Reset submitting state if user navigates back (bfcache)
+window.addEventListener('pageshow', function () {
+    document.querySelectorAll('form[data-submitting="true"]').forEach((form) => {
+        form.dataset.submitting = 'false';
+        delete form.dataset.confirmed;
+        const submitBtns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+        submitBtns.forEach((btn) => {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        });
+    });
 });
 
 Alpine.start();

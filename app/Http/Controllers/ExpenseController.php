@@ -17,8 +17,8 @@ class ExpenseController extends Controller
             $query->where('category', $request->category);
         }
 
+        $totalAmount = (clone $query)->sum('amount');
         $expenses = $query->paginate(20)->withQueryString();
-        $totalAmount = Expense::sum('amount');
         $bookings = Booking::orderBy('booking_date', 'desc')->take(30)->get();
 
         return view('expenses.index', compact('expenses', 'totalAmount', 'bookings'));

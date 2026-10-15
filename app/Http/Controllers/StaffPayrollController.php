@@ -263,6 +263,10 @@ class StaffPayrollController extends Controller
      */
     public function markAsPaid(Request $request, StaffPayroll $staffPayroll)
     {
+        if ($staffPayroll->isPaid()) {
+            return back()->with('error', 'Slip gaji ini sudah lunas / sudah dibayar sebelumnya.');
+        }
+
         $validated = $request->validate([
             'payment_date' => 'required|date',
             'payment_method' => 'required|string|max:50',
@@ -274,34 +278,47 @@ class StaffPayrollController extends Controller
             'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
 
-        DB::transaction(function () use ($staffPayroll, $validated, $request) {
-            $staffPayroll->update([
-                'payment_status' => 'PAID',
-                'payment_date' => $validated['payment_date'],
-                'payment_method' => $validated['payment_method'],
-                'payment_reference' => $validated['payment_reference'] ?? null,
-                'notes' => $validated['notes'] ? ($staffPayroll->notes ? $staffPayroll->notes . " | " . $validated['notes'] : $validated['notes']) : $staffPayroll->notes,
-                'paid_by' => auth()->id(),
-            ]);
+        try {
+            DB::transaction(function () use ($staffPayroll, $validated, $request) {
+                $lockedPayroll = StaffPayroll::where('id', $staffPayroll->id)->lockForUpdate()->firstOrFail();
 
-            if ($request->boolean('record_expense')) {
-                Expense::create([
-                    'category' => 'Gaji & Upah',
-                    'description' => "Pembayaran Gaji {$staffPayroll->user->name} ({$staffPayroll->period_name}) - {$staffPayroll->payroll_code}",
-                    'amount' => $staffPayroll->net_salary,
-                    'expense_date' => $validated['payment_date'],
-                    'created_by' => auth()->id(),
-                    'notes' => "Otomatis dicatat saat pelunasan Slip Gaji #{$staffPayroll->payroll_code}",
+                if ($lockedPayroll->payment_status === 'PAID') {
+                    throw new Exception("Slip gaji ini sudah berstatus LUNAS.");
+                }
+
+                $lockedPayroll->update([
+                    'payment_status' => 'PAID',
+                    'payment_date' => $validated['payment_date'],
+                    'payment_method' => $validated['payment_method'],
+                    'payment_reference' => $validated['payment_reference'] ?? null,
+                    'notes' => (!empty($validated['notes'])) ? ($lockedPayroll->notes ? $lockedPayroll->notes . " | " . $validated['notes'] : $validated['notes']) : $lockedPayroll->notes,
+                    'paid_by' => auth()->id(),
                 ]);
-            }
 
-            AuditLog::log('PAY_STAFF_PAYROLL', StaffPayroll::class, $staffPayroll->id, ['status' => 'PENDING'], [
-                'status' => 'PAID',
-                'amount' => $staffPayroll->net_salary,
-                'payment_method' => $validated['payment_method'],
-                'payment_date' => $validated['payment_date'],
-            ]);
-        });
+                if ($request->boolean('record_expense')) {
+                    $alreadyRecorded = Expense::where('description', 'like', "%{$lockedPayroll->payroll_code}%")->exists();
+                    if (!$alreadyRecorded) {
+                        Expense::create([
+                            'category' => 'Gaji & Upah',
+                            'description' => "Pembayaran Gaji {$lockedPayroll->user->name} ({$lockedPayroll->period_name}) - {$lockedPayroll->payroll_code}",
+                            'amount' => $lockedPayroll->net_salary,
+                            'expense_date' => $validated['payment_date'],
+                            'created_by' => auth()->id(),
+                            'notes' => "Otomatis dicatat saat pelunasan Slip Gaji #{$lockedPayroll->payroll_code}",
+                        ]);
+                    }
+                }
+
+                AuditLog::log('PAY_STAFF_PAYROLL', StaffPayroll::class, $lockedPayroll->id, ['status' => 'PENDING'], [
+                    'status' => 'PAID',
+                    'amount' => $lockedPayroll->net_salary,
+                    'payment_method' => $validated['payment_method'],
+                    'payment_date' => $validated['payment_date'],
+                ]);
+            });
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', "Pembayaran gaji {$staffPayroll->user->name} ({$staffPayroll->payroll_code}) sebesar Rp " . number_format($staffPayroll->net_salary, 0, ',', '.') . " berhasil dicatat.");
     }

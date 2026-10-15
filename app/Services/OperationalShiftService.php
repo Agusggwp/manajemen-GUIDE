@@ -168,6 +168,8 @@ class OperationalShiftService
             $autoCheckoutCount = 0;
             $closedByText = $user ? $user->name : 'Sistem Otomatis';
 
+            $wasOpen = Setting::get('operational_status') === 'OPEN' || Setting::get('operational_manual_status_' . $today) === 'OPEN';
+
             foreach ($activeAttendances as $attendance) {
                 $attendance->check_out_at = Carbon::now();
                 $attendance->status = 'CHECKED_OUT';
@@ -176,13 +178,27 @@ class OperationalShiftService
                 $attendance->save();
 
                 if ($attendance->guide && $attendance->guide->status !== 'SUSPENDED') {
-                    // Complete any ongoing tour assignments if any
-                    \App\Models\GuideAssignment::where('guide_id', $attendance->guide->id)
+                    // Complete any ongoing tour assignments and synchronize parent bookings
+                    $ongoingAssignments = \App\Models\GuideAssignment::where('guide_id', $attendance->guide->id)
                         ->where('status', 'ON_GOING')
-                        ->update([
-                            'status' => 'COMPLETED',
-                            'completed_at' => Carbon::now(),
-                        ]);
+                        ->with('booking')
+                        ->get();
+
+                    foreach ($ongoingAssignments as $assignment) {
+                        $assignment->status = 'COMPLETED';
+                        $assignment->completed_at = Carbon::now();
+                        $assignment->save();
+
+                        $booking = $assignment->booking;
+                        if ($booking) {
+                            $allCompleted = !$booking->assignments()->whereNotIn('status', ['COMPLETED', 'CANCELLED'])->exists();
+                            if ($allCompleted && $booking->assignedGuestsCount() >= $booking->guest_count) {
+                                $booking->status = 'COMPLETED';
+                                $booking->save();
+                            }
+                            $booking->recalculateTotals();
+                        }
+                    }
 
                     $attendance->guide->status = 'AVAILABLE';
                     $attendance->guide->save();
@@ -208,15 +224,18 @@ class OperationalShiftService
             return [
                 'status' => 'CLOSED',
                 'auto_checked_out_count' => $autoCheckoutCount,
+                'was_open' => $wasOpen,
                 'message' => "Loket operasional berhasil DITUTUP. Sebanyak {$autoCheckoutCount} pemandu (guide) yang masih aktif telah otomatis di-checkout.",
             ];
         });
 
-        // Send Discord Webhook notification with complete daily operational & financial summary
-        try {
-            app(DiscordWebhookService::class)->sendShiftClosed($result, $user, $reason, $targetDate);
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Discord Webhook on closeShift failed: ' . $e->getMessage());
+        // Send Discord Webhook notification if shift was active or guides were auto-checked-out
+        if (($result['was_open'] ?? false) || ($result['auto_checked_out_count'] ?? 0) > 0) {
+            try {
+                app(DiscordWebhookService::class)->sendShiftClosed($result, $user, $reason, $targetDate);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Discord Webhook on closeShift failed: ' . $e->getMessage());
+            }
         }
 
         return $result;

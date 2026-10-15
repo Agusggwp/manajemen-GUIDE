@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\Guide;
 use App\Models\User;
 use App\Notifications\AccountApprovedNotification;
 use App\Notifications\AccountRejectedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserApprovalController extends Controller
 {
@@ -68,47 +70,59 @@ class UserApprovalController extends Controller
      */
     public function approve(User $user, Request $request)
     {
-        $user->update([
-            'approval_status' => 'APPROVED',
-            'is_active' => true,
-            'approved_at' => now(),
-            'approved_by' => auth()->id(),
-            'rejection_reason' => null,
-        ]);
-
-        // If approved user is a GUIDE and has no Guide profile yet, create one automatically
-        if ($user->isGuide() && !$user->guide) {
-            $nextQueueNumber = (\App\Models\Guide::max('queue_number') ?? 0) + 1;
-            $nextCode = sprintf('GD-%03d', (\App\Models\Guide::count() + 1));
-
-            \App\Models\Guide::create([
-                'user_id' => $user->id,
-                'kode_guide' => $nextCode,
-                'nama' => $user->name,
-                'nomor_telepon' => $user->phone ?? '-',
-                'email' => $user->email,
-                'queue_number' => $nextQueueNumber,
-                'status' => 'AVAILABLE',
-                'tanggal_gabung' => now(),
-                'tipe_fee' => 'PER_GUEST',
-                'fee_per_guest' => 50000,
-                'fee_per_booking' => 0,
-                'fee_minimum' => 0,
+        DB::transaction(function () use ($user) {
+            $user->update([
+                'approval_status' => 'APPROVED',
+                'is_active' => true,
+                'approved_at' => now(),
+                'approved_by' => auth()->id(),
+                'rejection_reason' => null,
             ]);
-        }
 
-        // Send approval email notification to the user
+            // If approved user is a GUIDE and has no Guide profile yet, create one automatically
+            if ($user->isGuide() && !$user->guide) {
+                $nextQueueNumber = (Guide::max('queue_number') ?? 0) + 1;
+                $maxNum = Guide::where('kode_guide', 'like', 'GD-%')
+                    ->get()
+                    ->map(function ($g) {
+                        return preg_match('/GD-(\d+)/', $g->kode_guide, $m) ? (int) $m[1] : 0;
+                    })
+                    ->max() ?? 0;
+                $nextCode = sprintf('GD-%03d', max($maxNum + 1, Guide::count() + 1));
+                while (Guide::where('kode_guide', $nextCode)->exists()) {
+                    $maxNum++;
+                    $nextCode = sprintf('GD-%03d', $maxNum);
+                }
+
+                Guide::create([
+                    'user_id' => $user->id,
+                    'kode_guide' => $nextCode,
+                    'nama' => $user->name,
+                    'nomor_telepon' => $user->phone ?? '-',
+                    'email' => $user->email,
+                    'queue_number' => $nextQueueNumber,
+                    'status' => 'AVAILABLE',
+                    'tanggal_gabung' => now(),
+                    'tipe_fee' => 'PER_GUEST',
+                    'fee_per_guest' => 50000,
+                    'fee_per_booking' => 0,
+                    'fee_minimum' => 0,
+                ]);
+            }
+
+            AuditLog::log('APPROVE_USER', 'User', $user->id, null, [
+                'email' => $user->email,
+                'role' => $user->role,
+                'approved_by' => auth()->id(),
+            ]);
+        });
+
+        // Send approval email notification to the user outside the database transaction
         try {
             $user->notify(new AccountApprovedNotification());
         } catch (\Throwable $e) {
             // Log but don't break transaction
         }
-
-        AuditLog::log('APPROVE_USER', 'User', $user->id, null, [
-            'email' => $user->email,
-            'role' => $user->role,
-            'approved_by' => auth()->id(),
-        ]);
 
         return back()->with('success', "Akun {$user->name} ({$user->email}) berhasil di-ACC (disetujui) dan sekarang telah AKTIF!");
     }

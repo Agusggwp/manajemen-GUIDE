@@ -55,9 +55,14 @@ class GuideAttendanceService
                 'attendance_date' => $attendanceDate,
             ]);
 
+            if ($attendance->exists && $attendance->status === 'CHECKED_IN' && !$isForce) {
+                $checkInTime = $attendance->check_in_at ? $attendance->check_in_at->format('H:i') : '-';
+                throw new Exception("Anda sudah melakukan check-in hari ini pada pukul {$checkInTime} WITA.");
+            }
+
             $oldStatus = $attendance->status;
 
-            $attendance->check_in_at = now();
+            $attendance->check_in_at = $attendance->check_in_at ?? now();
             $attendance->check_out_at = null;
             $attendance->status = 'CHECKED_IN';
             $attendance->notes = $notes ?? $attendance->notes;
@@ -122,6 +127,11 @@ class GuideAttendanceService
                 throw new Exception("Guide belum melakukan check-in hari ini.");
             }
 
+            if ($attendance && $attendance->status === 'CHECKED_OUT' && !$isForce) {
+                $checkOutTime = $attendance->check_out_at ? $attendance->check_out_at->format('H:i') : '-';
+                throw new Exception("Anda sudah melakukan checkout hari ini pada pukul {$checkOutTime} WITA.");
+            }
+
             if (!$attendance) {
                 $attendance = new GuideAttendance([
                     'guide_id' => $guide->id,
@@ -132,7 +142,12 @@ class GuideAttendanceService
 
             $oldStatus = $attendance->status;
 
-            $attendance->check_out_at = now();
+            $now = now();
+            if ($attendance->check_in_at && $now->lt($attendance->check_in_at)) {
+                $now = $attendance->check_in_at->copy();
+            }
+
+            $attendance->check_out_at = $now;
             $attendance->status = 'CHECKED_OUT';
             if ($notes) {
                 $attendance->notes = $attendance->notes ? $attendance->notes . ' | ' . $notes : $notes;
@@ -187,6 +202,10 @@ class GuideAttendanceService
                 throw new Exception("Anda tidak memiliki hak akses untuk tour ini.");
             }
 
+            if ($assignment->status === 'CANCELLED' || $assignment->booking?->status === 'CANCELLED') {
+                throw new Exception("Tour ini telah dibatalkan.");
+            }
+
             if ($assignment->status === 'COMPLETED') {
                 throw new Exception("Tour sudah selesai.");
             }
@@ -216,6 +235,14 @@ class GuideAttendanceService
                 throw new Exception("Anda tidak memiliki hak akses untuk tour ini.");
             }
 
+            if ($assignment->status === 'CANCELLED' || $assignment->booking?->status === 'CANCELLED') {
+                throw new Exception("Tour ini telah dibatalkan.");
+            }
+
+            if ($assignment->status === 'COMPLETED') {
+                throw new Exception("Tour sudah selesai.");
+            }
+
             $assignment->status = 'COMPLETED';
             $assignment->completed_at = now();
             $assignment->save();
@@ -232,13 +259,15 @@ class GuideAttendanceService
             }
 
             $booking = $assignment->booking;
-            $allCompleted = !$booking->assignments()->where('status', '!=', 'COMPLETED')->where('status', '!=', 'CANCELLED')->exists();
-            if ($allCompleted && $booking->assignedGuestsCount() >= $booking->guest_count) {
-                $booking->status = 'COMPLETED';
-                $booking->save();
-            }
+            if ($booking) {
+                $allCompleted = !$booking->assignments()->whereNotIn('status', ['COMPLETED', 'CANCELLED'])->exists();
+                if ($allCompleted && $booking->assignedGuestsCount() >= $booking->guest_count) {
+                    $booking->status = 'COMPLETED';
+                    $booking->save();
+                }
 
-            $booking->recalculateTotals();
+                $booking->recalculateTotals();
+            }
 
             AuditLog::log('COMPLETE_TOUR', GuideAssignment::class, $assignment->id, null, ['status' => 'COMPLETED']);
         });
