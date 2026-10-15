@@ -75,37 +75,37 @@ class DiscordWebhookService
             'embeds' => [
                 [
                     'title' => 'LOKET OPERASIONAL RESMI DIBUKA',
-                    'description' => "Loket operasional **{$appName}** telah dibuka. Pemandu wisata (guide) sekarang dapat melakukan absensi check-in dan sistem siap menerima pesanan tur.",
+                    'description' => "> 🟢 **Status: LOKET RESMI DIBUKA**\n> Loket operasional **{$appName}** telah dibuka. Pemandu wisata (guide) sekarang dapat melakukan absensi check-in dan sistem siap menerima pesanan tur.",
                     'color' => 0x2ECC71, // Emerald Green
                     'fields' => [
                         [
                             'name' => 'Tanggal Operasional',
-                            'value' => $dateFormatted,
+                            'value' => "📅 {$dateFormatted}",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Waktu Buka',
-                            'value' => $timeNow,
+                            'value' => "⏰ **{$timeNow}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Dibuka Oleh',
-                            'value' => $openedBy,
+                            'value' => "👤 **{$openedBy}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Guide Terdaftar',
-                            'value' => "{$activeGuidesTotal} Guide Aktif",
+                            'value' => "👥 **{$activeGuidesTotal} Guide** Aktif",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Urutan Antrean',
-                            'value' => "Posisi Antrean: #{$queueState->current_position}",
+                            'value' => "🔄 Posisi Antrean: **#{$queueState->current_position}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Mode Penutupan',
-                            'value' => $autoScheduleText,
+                            'value' => "⚙️ {$autoScheduleText}",
                             'inline' => true,
                         ],
                     ],
@@ -194,20 +194,17 @@ class DiscordWebhookService
             $tourCount = $pkgBookings->count();
             $packagesLines[] = "• **{$pkgName}**: {$paxCount} pax ({$tourCount} tur)";
         }
-        $packagesText = !empty($packagesLines) ? implode("\n", array_slice($packagesLines, 0, 5)) : "Tidak ada tur terjual";
+        $packagesText = !empty($packagesLines) ? implode("\n", array_slice($packagesLines, 0, 5)) : "• *Tidak ada tur terjual pada shift ini.*";
         if (count($packagesLines) > 5) {
-            $packagesText .= "\n• ...dan " . (count($packagesLines) - 5) . " paket lainnya";
+            $packagesText .= "\n• *...dan " . (count($packagesLines) - 5) . " paket lainnya*";
         }
 
         // 7. Guide Attendances
         $attendances = GuideAttendance::where('attendance_date', $targetDate)
             ->with('guide')
             ->get();
-        $totalGuidesAttended = $attendances->count();
-        $manualCheckedOut = $attendances->where('status', 'CHECKED_OUT')->count() - $autoCheckedOutCount;
-        if ($manualCheckedOut < 0) {
-            $manualCheckedOut = 0;
-        }
+        $totalGuidesAttended = max($attendances->count(), $autoCheckedOutCount);
+        $manualCheckedOut = max(0, $totalGuidesAttended - $autoCheckedOutCount);
 
         $guideNames = $attendances->map(fn($a) => $a->guide?->nama)->filter()->unique()->values()->all();
         $guideNamesText = !empty($guideNames) ? implode(', ', array_slice($guideNames, 0, 8)) : 'Tidak ada guide hadir';
@@ -239,8 +236,7 @@ class DiscordWebhookService
                         . "• Total Beban: **{$fmtRp($totalExpenses + $totalGuideFee)}**";
 
         $attendanceDetails = "• Total Hadir: **{$totalGuidesAttended} Guide**\n"
-                           . "• Auto Checkout: **{$autoCheckedOutCount} Guide**\n"
-                           . "• Checkout Mandiri: **{$manualCheckedOut} Guide**\n"
+                           . "• Auto Checkout: **{$autoCheckedOutCount} Guide** • Checkout Mandiri: **{$manualCheckedOut} Guide**\n"
                            . "• Daftar Pemandu: {$guideNamesText}";
 
         $payload = [
@@ -249,37 +245,37 @@ class DiscordWebhookService
             'embeds' => [
                 [
                     'title' => 'REKAP OPERASIONAL LOKET DITUTUP',
-                    'description' => "Laporan resmi penutupan shift loket kasir & operasional **{$appName}** pada tanggal **{$dateFormatted}**.\nSemua pemandu aktif telah otomatis di-checkout oleh sistem.",
+                    'description' => "> 🔴 **Status: LOKET RESMI DITUTUP**\n> Laporan resmi penutupan shift loket kasir & operasional **{$appName}** pada tanggal **{$dateFormatted}**.\n> Semua pemandu aktif telah otomatis di-checkout oleh sistem.",
                     'color' => 0xE74C3C, // Alizarin Red
                     'fields' => [
                         [
                             'name' => 'Tanggal & Waktu Tutup',
-                            'value' => "{$dateFormatted}\nPukul **{$timeClosed}**",
+                            'value' => "📅 {$dateFormatted}\n⏰ Pukul **{$timeClosed}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Ditutup Oleh',
-                            'value' => "{$closedBy}\n_{$reason}_",
+                            'value' => "👤 **{$closedBy}**\n📝 _{$reason}_",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Durasi Operasional',
-                            'value' => $durationText,
+                            'value' => "⏱️ **{$durationText}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Wisatawan (Pax Laku)',
-                            'value' => "**{$totalPax} Orang (Pax)**\nTotal: **{$totalBookingsCount} Tur** ({$walkinCount} Walk-in / {$reservationCount} Reservasi)",
+                            'value' => "🎟️ **{$totalPax} Orang (Pax)**\n📊 Total: **{$totalBookingsCount} Tur** ({$walkinCount} Walk-in / {$reservationCount} Reservasi)",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Total Uang Masuk (Omset)',
-                            'value' => "Diterima: **{$fmtRp($totalAmountPaid)}**\nTagihan: **{$fmtRp($totalRevenue)}**",
+                            'value' => "💰 Diterima: **{$fmtRp($totalAmountPaid)}**\n🧾 Tagihan: **{$fmtRp($totalRevenue)}**",
                             'inline' => true,
                         ],
                         [
                             'name' => 'Estimasi Laba Bersih',
-                            'value' => "**{$fmtRp($netEstimatedProfit)}**\n_(Omset - Fee Guide - Operasional)_",
+                            'value' => "📈 **{$fmtRp($netEstimatedProfit)}**\n*(Omset − Fee Guide − Operasional)*",
                             'inline' => true,
                         ],
                         [
@@ -295,7 +291,7 @@ class DiscordWebhookService
                         [
                             'name' => 'Paket Wisata Terjual',
                             'value' => $packagesText,
-                            'inline' => true,
+                            'inline' => false,
                         ],
                         [
                             'name' => 'Absensi Pemandu (Guide)',
