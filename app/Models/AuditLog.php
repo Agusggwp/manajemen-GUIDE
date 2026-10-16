@@ -36,7 +36,7 @@ class AuditLog extends Model
 
     public static function log(string $action, ?string $model = null, ?int $modelId = null, ?array $oldValues = null, ?array $newValues = null): self
     {
-        return static::create([
+        $log = static::create([
             'user_id' => auth()->id(),
             'action' => $action,
             'model' => $model,
@@ -47,5 +47,23 @@ class AuditLog extends Model
             'user_agent' => request()->userAgent(),
             'created_at' => now(),
         ]);
+
+        try {
+            /** @var \App\Services\DiscordWebhookService $discord */
+            $discord = app(\App\Services\DiscordWebhookService::class);
+            if ($discord->isActivityEnabled()) {
+                if (app()->runningUnitTests() || app()->runningInConsole()) {
+                    $discord->sendActivityLog($log);
+                } else {
+                    dispatch(function () use ($log) {
+                        app(\App\Services\DiscordWebhookService::class)->sendActivityLog($log);
+                    })->afterResponse();
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Discord activity webhook trigger failed: ' . $e->getMessage());
+        }
+
+        return $log;
     }
 }

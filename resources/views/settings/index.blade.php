@@ -692,8 +692,8 @@
                 </div>
             </div>
 
-            <!-- Card 3: Integrasi Notifikasi Webhook Discord -->
-            <div class="clay-card p-6 sm:p-8 space-y-4 border border-[#5865F2]/30 bg-gradient-to-br from-indigo-50/40 via-white to-white">
+            <!-- Card 3: Integrasi Notifikasi Webhook Discord Terpisah -->
+            <div class="clay-card p-6 sm:p-8 space-y-6 border border-[#5865F2]/30 bg-gradient-to-br from-indigo-50/40 via-white to-white">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E6F0] pb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-[#5865F2]/15 text-[#5865F2] flex items-center justify-center shrink-0 shadow-2xs">
@@ -703,71 +703,147 @@
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="font-extrabold text-[#29283D] text-sm font-display">Integrasi Notifikasi Webhook Discord</h3>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ ($discordWebhookConfigured ?? false) ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-[#77768C] border border-[#E8E6F0]' }}">
-                                    {{ ($discordWebhookConfigured ?? false) ? '● TERHUBUNG (.ENV)' : '○ BELUM DIATUR (.ENV)' }}
+                                <h3 class="font-extrabold text-[#29283D] text-sm font-display">Integrasi Notifikasi Webhook Discord Terpisah</h3>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800 border border-purple-200">
+                                    2 Saluran Webhook
                                 </span>
                             </div>
-                            <p class="text-[11px] text-[#77768C] mt-0.5">Konfigurasi link webhook dikelola terpusat melalui file <code class="font-mono font-bold text-[#5865F2]">.env</code> server (<code class="font-mono">DISCORD_WEBHOOK_URL</code>).</p>
+                            <p class="text-[11px] text-[#77768C] mt-0.5">
+                                Sistem mendukung <strong>dua tautan Webhook Discord terpisah</strong>: satu untuk laporan operasional loket (buka/tutup shift) dan satu untuk audit trail (login, logout, akses web, dan seluruh aksi CRUD data).
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Webhook Status & Test Notification Action -->
-                <div class="p-4 bg-white/95 rounded-2xl border border-[#E8E6F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="space-y-1 max-w-xl">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-[#29283D]">Status Integrasi Webhook:</span>
-                            @if($discordWebhookConfigured ?? false)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    Aktif dari .env
+                <!-- DUA SALURAN WEBHOOK TERPISAH (GRID 2 KOLOM) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    
+                    <!-- SALURAN 1: OPERASIONAL LOKET -->
+                    <div class="p-5 bg-white/95 rounded-2xl border border-[#E8E6F0] shadow-2xs space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between gap-2 border-b border-[#E8E6F0] pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shadow-2xs">🏪</span>
+                                    <div>
+                                        <h4 class="font-extrabold text-[#29283D] text-xs">Saluran 1: Operasional Buka / Tutup Loket</h4>
+                                        <span class="text-[10px] text-[#77768C] font-mono">DISCORD_WEBHOOK_URL</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 {{ ($discordWebhookConfigured ?? false) ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-[#77768C] border border-[#E8E6F0]' }}">
+                                    {{ ($discordWebhookConfigured ?? false) ? '● AKTIF' : '○ BELUM DIATUR' }}
                                 </span>
-                            @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                    Belum diatur di file .env
-                                </span>
-                            @endif
+                            </div>
+
+                            <p class="text-[11px] text-[#77768C] leading-relaxed">
+                                Mengirimkan notifikasi resmi saat loket dibuka oleh staf/admin, dan rekap lengkap saat loket ditutup: <strong>jumlah pax laku</strong>, <strong>uang masuk (omset per metode bayar)</strong>, <strong>absensi guide</strong>, dan <strong>estimasi laba bersih</strong>.
+                            </p>
+
+                            <!-- Input Fallback Link (Bisa via Form DB atau .env) -->
+                            <div class="space-y-1.5 pt-1">
+                                <label class="block text-[11px] font-bold text-[#29283D]">
+                                    URL Webhook Loket (.env / Database):
+                                </label>
+                                <input type="url" name="discord_webhook_url" id="input_discord_webhook_url"
+                                       value="{{ old('discord_webhook_url', $settings['discord_webhook_url'] ?? '') }}"
+                                       placeholder="https://discord.com/api/webhooks/..."
+                                       class="clay-input w-full text-xs font-mono text-slate-700">
+                                <p class="text-[10px] text-[#77768C]">
+                                    @if(config('services.discord.webhook_url') || env('DISCORD_WEBHOOK_URL'))
+                                        <span class="text-emerald-600 font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_WEBHOOK_URL).</span>
+                                    @else
+                                        Kosongkan jika diatur lewat .env, atau tempelkan URL webhook langsung di sini.
+                                    @endif
+                                </p>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-[#77768C] leading-relaxed">
-                            @if($discordWebhookConfigured ?? false)
-                                Webhook Discord aktif terdeteksi. Sistem secara otomatis mengirimkan log saat loket BUKA dan rekap lengkap saat loket TUTUP.
-                            @else
-                                Untuk mengaktifkan, tambahkan variabel <code class="font-mono text-purple-700 font-bold">DISCORD_WEBHOOK_URL</code> di file <code class="font-mono font-bold">.env</code> server Anda.
-                            @endif
-                        </p>
+
+                        <div class="pt-3 border-t border-[#E8E6F0] flex items-center justify-between gap-2">
+                            <span class="text-[10px] text-[#77768C] italic">Channel: Operasional Loket</span>
+                            <button type="button" id="btn-test-discord-operational"
+                                    onclick="testDiscordWebhook('operational')"
+                                    style="background-color: #10B981 !important; color: #ffffff !important;"
+                                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span id="btn-test-discord-operational-text" class="text-white font-bold">Tes Webhook Loket</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <button type="button" id="btn-test-discord"
-                            onclick="testDiscordWebhook()"
-                            style="background-color: #5865F2 !important; color: #ffffff !important;"
-                            class="px-5 py-2.5 rounded-xl font-bold text-xs text-white shrink-0 flex items-center justify-center gap-2 shadow-md shadow-[#5865F2]/25 hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        <span id="btn-test-discord-text" class="text-white font-bold">Tes Notifikasi</span>
-                    </button>
+                    <!-- SALURAN 2: AKTIVITAS & AUDIT TRAIL -->
+                    <div class="p-5 bg-white/95 rounded-2xl border border-[#E8E6F0] shadow-2xs space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between gap-2 border-b border-[#E8E6F0] pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-[#6C63FF]/15 text-[#6C63FF] flex items-center justify-center font-bold text-xs shadow-2xs">🛡️</span>
+                                    <div>
+                                        <h4 class="font-extrabold text-[#29283D] text-xs">Saluran 2: Aktivitas Web & Audit Trail (CRUD)</h4>
+                                        <span class="text-[10px] text-[#77768C] font-mono">DISCORD_ACTIVITY_WEBHOOK_URL</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 {{ ($discordActivityWebhookConfigured ?? false) ? 'bg-[#6C63FF]/20 text-[#6C63FF] border border-[#6C63FF]/40' : 'bg-gray-100 text-[#77768C] border border-[#E8E6F0]' }}">
+                                    {{ ($discordActivityWebhookConfigured ?? false) ? '● AKTIF' : '○ BELUM DIATUR' }}
+                                </span>
+                            </div>
+
+                            <p class="text-[11px] text-[#77768C] leading-relaxed">
+                                Mengirimkan log real-time ke saluran khusus Discord untuk: <strong>Login/Logout</strong>, <strong>Peringatan 403 (Akses Ditolak)</strong>, <strong>ACC Akun Baru</strong>, serta seluruh aksi CRUD (Booking, Guide, Gaji Staf, Pengeluaran, Paket Wisata, dan Hak Akses Role).
+                            </p>
+
+                            <!-- Input Fallback Link (Bisa via Form DB atau .env) -->
+                            <div class="space-y-1.5 pt-1">
+                                <label class="block text-[11px] font-bold text-[#29283D]">
+                                    URL Webhook Aktivitas (.env / Database):
+                                </label>
+                                <input type="url" name="discord_activity_webhook_url" id="input_discord_activity_webhook_url"
+                                       value="{{ old('discord_activity_webhook_url', $settings['discord_activity_webhook_url'] ?? '') }}"
+                                       placeholder="https://discord.com/api/webhooks/..."
+                                       class="clay-input w-full text-xs font-mono text-slate-700">
+                                <p class="text-[10px] text-[#77768C]">
+                                    @if(config('services.discord.activity_webhook_url') || env('DISCORD_ACTIVITY_WEBHOOK_URL'))
+                                        <span class="text-[#6C63FF] font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_ACTIVITY_WEBHOOK_URL).</span>
+                                    @else
+                                        Dapat diatur di file .env atau disimpan langsung melalui form ini.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-[#E8E6F0] flex items-center justify-between gap-2">
+                            <span class="text-[10px] text-[#77768C] italic">Channel: Audit & Security Logs</span>
+                            <button type="button" id="btn-test-discord-activity"
+                                    onclick="testDiscordWebhook('activity')"
+                                    style="background-color: #5865F2 !important; color: #ffffff !important;"
+                                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span id="btn-test-discord-activity-text" class="text-white font-bold">Tes Webhook Aktivitas</span>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Feature Highlights Preview Banner -->
                 <div class="p-4 bg-white/90 rounded-2xl border border-[#E8E6F0] space-y-2">
-                    <span class="text-[11px] font-extrabold text-[#29283D] block">Format Rekap Yang Dikirim ke Discord:</span>
+                    <span class="text-[11px] font-extrabold text-[#29283D] block">Perbedaan Cakupan Pesan Dua Saluran Discord:</span>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-[#77768C]">
                         <div class="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-200/80 space-y-1">
                             <span class="font-extrabold text-emerald-800 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Saat Buka Loket
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Saluran 1: Operasional Loket
                             </span>
                             <p class="text-[10px] text-emerald-900 leading-relaxed">
-                                Notifikasi pembukaan loket, nama staf/admin yang bertugas, tanggal & waktu buka, jumlah guide aktif siap tugas, dan mode jadwal operasional.
+                                Fokus pada ritme harian loket kasir: Buka Loket pagi hari & Rekap Tutup Loket sore hari (omset, transaksi kasir, daftar kehadiran guide, auto check-out).
                             </p>
                         </div>
-                        <div class="p-2.5 bg-rose-50/60 rounded-xl border border-rose-200/80 space-y-1">
-                            <span class="font-extrabold text-rose-800 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Saat Tutup Loket
+                        <div class="p-2.5 bg-indigo-50/60 rounded-xl border border-indigo-200/80 space-y-1">
+                            <span class="font-extrabold text-[#5865F2] flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-[#5865F2]"></span> Saluran 2: Aktivitas & Audit Trail
                             </span>
-                            <p class="text-[10px] text-rose-900 leading-relaxed">
-                                Rekap lengkap: <strong>Berapa Pax laku</strong>, <strong>Berapa uang masuk</strong> (Total omset & rincian Tunai, QRIS, Transfer, EDC), <strong>Berapa guide hadir</strong> (termasuk auto-checkout), biaya operasional, dan estimasi laba bersih.
+                            <p class="text-[10px] text-indigo-950 leading-relaxed">
+                                Rekam jejak audit real-time: siapa yang login/logout, kapan pesanan tur dibuat/diubah/dibatalkan, guide baru, suspend guide, pembayaran komisi, slip gaji, dan perubahan otorisasi role.
                             </p>
                         </div>
                     </div>
@@ -1075,12 +1151,28 @@
 </div>
 
 <script>
-function testDiscordWebhook() {
-    const btn = document.getElementById('btn-test-discord');
-    const btnText = document.getElementById('btn-test-discord-text');
+function testDiscordWebhook(type = 'operational') {
+    const isActivity = type === 'activity';
+    const btnId = isActivity ? 'btn-test-discord-activity' : 'btn-test-discord-operational';
+    const btnTextId = isActivity ? 'btn-test-discord-activity-text' : 'btn-test-discord-operational-text';
+    const inputId = isActivity ? 'input_discord_activity_webhook_url' : 'input_discord_webhook_url';
 
+    const btn = document.getElementById(btnId);
+    const btnText = document.getElementById(btnTextId);
+    const customUrl = document.getElementById(inputId) ? document.getElementById(inputId).value : '';
+
+    const originalText = btnText ? btnText.innerText : 'Tes Notifikasi';
     if (btn) btn.disabled = true;
     if (btnText) btnText.innerText = 'Mengirim Tes...';
+
+    const payload = {
+        type: type
+    };
+    if (isActivity) {
+        payload.discord_activity_webhook_url = customUrl;
+    } else {
+        payload.discord_webhook_url = customUrl;
+    }
 
     fetch('{{ route('settings.test-discord') }}', {
         method: 'POST',
@@ -1089,7 +1181,7 @@ function testDiscordWebhook() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json'
         },
-        body: JSON.stringify({})
+        body: JSON.stringify(payload)
     })
     .then(async (res) => {
         const data = await res.json();
@@ -1099,17 +1191,18 @@ function testDiscordWebhook() {
                     icon: 'success',
                     title: 'Tes Notifikasi Berhasil!',
                     text: data.message || 'Pesan uji coba berhasil terkirim ke channel Discord.',
-                    confirmButtonColor: '#5865F2'
+                    confirmButtonColor: isActivity ? '#6C63FF' : '#10B981'
                 });
             } else {
                 alert(data.message || 'Pesan uji coba berhasil terkirim ke Discord.');
             }
         } else {
+            const envName = isActivity ? 'DISCORD_ACTIVITY_WEBHOOK_URL' : 'DISCORD_WEBHOOK_URL';
             if ((window.ArtAlert || window.Swal)) {
                 (window.ArtAlert || window.Swal).fire({
                     icon: 'warning',
                     title: 'Pemberitahuan Webhook',
-                    html: (data.message || 'Gagal mengirim pesan uji coba ke Discord.') + '<br><br><span class="text-xs text-slate-500">Pastikan <code>DISCORD_WEBHOOK_URL</code> telah diatur di file <code>.env</code> server.</span>',
+                    html: (data.message || 'Gagal mengirim pesan uji coba ke Discord.') + '<br><br><span class="text-xs text-slate-500">Pastikan <code>' + envName + '</code> telah diatur di file <code>.env</code> server atau diisi pada form input.</span>',
                     confirmButtonColor: '#5865F2'
                 });
             } else {
@@ -1131,7 +1224,7 @@ function testDiscordWebhook() {
     })
     .finally(() => {
         if (btn) btn.disabled = false;
-        if (btnText) btnText.innerText = 'Tes Notifikasi';
+        if (btnText) btnText.innerText = originalText;
     });
 }
 </script>

@@ -35,6 +35,13 @@ class RoleMiddleware
             return $next($request);
         }
 
+        \App\Models\AuditLog::log('ACCESS_DENIED', 'Route', null, null, [
+            'attempted_url' => $request->path(),
+            'method' => $request->method(),
+            'user_role' => $user->role,
+            'required_roles' => $roles,
+        ]);
+
         abort(403, 'Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman ini.');
     }
 }

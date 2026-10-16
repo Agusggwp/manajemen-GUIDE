@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\Expense;
 use App\Models\Guide;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 class DiscordWebhookService
 {
     /**
-     * Check if Discord webhook notifications are configured in .env.
+     * Check if Discord operational webhook notifications are configured in .env / config.
      */
     public function isEnabled(): bool
     {
@@ -26,7 +27,7 @@ class DiscordWebhookService
     }
 
     /**
-     * Get configured Discord Webhook URL from .env / config.
+     * Get configured Discord Operational Webhook URL from .env / config.
      */
     public function getWebhookUrl(): ?string
     {
@@ -38,6 +39,32 @@ class DiscordWebhookService
         $legacy = Setting::get('discord_webhook_url');
         if (!empty($legacy)) {
             return trim($legacy);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if Discord Activity & Audit Webhook is configured in .env / config.
+     */
+    public function isActivityEnabled(): bool
+    {
+        return !empty($this->getActivityWebhookUrl());
+    }
+
+    /**
+     * Get configured Discord Activity & Audit Webhook URL from .env / config.
+     */
+    public function getActivityWebhookUrl(): ?string
+    {
+        $url = config('services.discord.activity_webhook_url') ?: env('DISCORD_ACTIVITY_WEBHOOK_URL');
+        if (!empty($url)) {
+            return trim($url);
+        }
+
+        $fromDb = Setting::get('discord_activity_webhook_url');
+        if (!empty($fromDb)) {
+            return trim($fromDb);
         }
 
         return null;
@@ -311,45 +338,540 @@ class DiscordWebhookService
     }
 
     /**
+     * Send activity & audit trail notification to Discord Activity Webhook.
+     */
+    public function sendActivityLog(AuditLog $auditLog): bool
+    {
+        if (!$this->isActivityEnabled()) {
+            return false;
+        }
+
+        $url = $this->getActivityWebhookUrl();
+        if (empty($url)) {
+            return false;
+        }
+
+        $user = $auditLog->user ?? ($auditLog->user_id ? User::find($auditLog->user_id) : null);
+        $actorName = $user ? $user->name : 'Sistem Otomatis / Publik';
+        $actorRole = $user ? $user->role : 'SYSTEM';
+        $actorEmail = $user ? $user->email : '-';
+
+        $action = strtoupper($auditLog->action);
+        $meta = $this->resolveActionMetadata($action, $auditLog);
+
+        $appName = Setting::get('company_name', 'ARTDEVATA');
+        $timeWita = Carbon::parse($auditLog->created_at ?? now())->format('H:i:s') . ' WITA';
+        $dateFormatted = Carbon::parse($auditLog->created_at ?? now())->locale('id')->isoFormat('dddd, D MMMM Y');
+
+        $targetObject = $auditLog->model 
+            ? (class_basename($auditLog->model) . ($auditLog->model_id ? " #{$auditLog->model_id}" : ''))
+            : ($meta['target'] ?? 'Sistem');
+
+        $fields = [
+            [
+                'name' => '👤 Pelaksana (Aktor)',
+                'value' => "**{$actorName}**\nRole: `{$actorRole}`\nEmail: `{$actorEmail}`",
+                'inline' => true,
+            ],
+            [
+                'name' => '⏰ Waktu & Tanggal',
+                'value' => "**{$timeWita}**\n{$dateFormatted}",
+                'inline' => true,
+            ],
+            [
+                'name' => '🌐 IP & Perangkat',
+                'value' => "IP: `{$auditLog->ip_address}`\n" . $this->formatUserAgent($auditLog->user_agent),
+                'inline' => true,
+            ],
+            [
+                'name' => '🏷️ Modul / Objek Target',
+                'value' => "`{$targetObject}`",
+                'inline' => true,
+            ],
+        ];
+
+        if (!empty($auditLog->new_values) && is_array($auditLog->new_values)) {
+            $formattedNew = $this->formatValuesForDiscord($auditLog->new_values);
+            if (!empty($formattedNew)) {
+                $fields[] = [
+                    'name' => '📋 Rincian Nilai / Perubahan Baru',
+                    'value' => $formattedNew,
+                    'inline' => false,
+                ];
+            }
+        }
+
+        if (!empty($auditLog->old_values) && is_array($auditLog->old_values)) {
+            $formattedOld = $this->formatValuesForDiscord($auditLog->old_values);
+            if (!empty($formattedOld)) {
+                $fields[] = [
+                    'name' => '⏮️ Nilai Sebelumnya',
+                    'value' => $formattedOld,
+                    'inline' => false,
+                ];
+            }
+        }
+
+        $payload = [
+            'username' => "{$appName} Audit Trail",
+            'avatar_url' => 'https://cdn-icons-png.flaticon.com/512/942/942748.png',
+            'embeds' => [
+                [
+                    'title' => $meta['title'],
+                    'description' => "> **{$meta['description']}**",
+                    'color' => $meta['color'],
+                    'fields' => $fields,
+                    'footer' => [
+                        'text' => "{$appName} Management System • Notifikasi Audit Trail & Aktivitas Web",
+                    ],
+                    'timestamp' => Carbon::parse($auditLog->created_at ?? now())->toISOString(),
+                ],
+            ],
+        ];
+
+        return $this->postWebhook($url, $payload);
+    }
+
+    /**
+     * Resolve title, color, and description for each Audit Log action.
+     */
+    protected function resolveActionMetadata(string $action, AuditLog $log): array
+    {
+        $map = [
+            'LOGIN' => [
+                'title' => '🟢 PENGGUNA BERHASIL LOGIN',
+                'color' => 0x2ECC71, // Emerald
+                'description' => 'Pengguna telah berhasil login ke portal web ARTDEVATA.',
+                'target' => 'Sesi Pengguna',
+            ],
+            'LOGOUT' => [
+                'title' => '⚪ PENGGUNA TELAH LOGOUT',
+                'color' => 0x95A5A6, // Silver
+                'description' => 'Pengguna telah mengakhiri sesi dan keluar dari sistem.',
+                'target' => 'Sesi Pengguna',
+            ],
+            'REGISTER' => [
+                'title' => '📝 PENDAFTARAN PENGGUNA BARU',
+                'color' => 0x3498DB, // Blue
+                'description' => 'Akun pengguna baru telah mendaftar dan menunggu verifikasi/persetujuan.',
+                'target' => 'User Account',
+            ],
+            'VERIFY_EMAIL' => [
+                'title' => '✉️ EMAIL PENGGUNA TERVERIFIKASI',
+                'color' => 0x1ABC9C, // Teal
+                'description' => 'Alamat email pengguna telah berhasil diverifikasi melalui signed URL.',
+                'target' => 'User Account',
+            ],
+            'APPROVE_USER' => [
+                'title' => '✅ AKUN PENGGUNA DISETUJUI (ACC)',
+                'color' => 0x27AE60, // Green
+                'description' => 'Administrator telah menyetujui akun pengguna. Pengguna kini berstatus AKTIF.',
+                'target' => 'User Account',
+            ],
+            'REJECT_USER' => [
+                'title' => '🚫 PENDAFTARAN PENGGUNA DITOLAK',
+                'color' => 0xE74C3C, // Red
+                'description' => 'Pendaftaran akun pengguna telah ditolak oleh Administrator.',
+                'target' => 'User Account',
+            ],
+            'ACCESS_DENIED' => [
+                'title' => '🚨 PERINGATAN: AKSES WEB DITOLAK (403)',
+                'color' => 0xE74C3C, // Red
+                'description' => 'Terdeteksi upaya akses halaman terlarang tanpa izin hak akses yang sesuai.',
+                'target' => 'Keamanan Web',
+            ],
+            'CREATE_BOOKING' => [
+                'title' => '🎫 PEMESANAN TUR BARU DIBUAT',
+                'color' => 0x3498DB,
+                'description' => 'Pemesanan paket tur wisata baru telah berhasil dicatat.',
+                'target' => 'Pemesanan Tur',
+            ],
+            'CREATE_DIRECT_TOUR' => [
+                'title' => '⚡ TUR LANGSUNG (WALK-IN) DIBUAT',
+                'color' => 0x2ECC71,
+                'description' => 'Pemesanan tiket tur langsung di loket kasir telah diterbitkan.',
+                'target' => 'Pemesanan Tur',
+            ],
+            'UPDATE_BOOKING' => [
+                'title' => '✏️ DATA PEMESANAN DIUBAH',
+                'color' => 0xF39C12,
+                'description' => 'Perubahan informasi jadwal, pemandu, atau tarif pemesanan tur.',
+                'target' => 'Pemesanan Tur',
+            ],
+            'DELETE_BOOKING' => [
+                'title' => '🗑️ PEMESANAN TUR DIBATALKAN / DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Pemesanan tur telah dibatalkan dari sistem operasional.',
+                'target' => 'Pemesanan Tur',
+            ],
+            'REMOVE_ASSIGNMENT' => [
+                'title' => '🔄 PENUGASAN PEMANDU DICABUT',
+                'color' => 0xE67E22,
+                'description' => 'Penugasan pemandu pada tur telah dibatalkan dan dikembalikan ke antrean.',
+                'target' => 'Penugasan Guide',
+            ],
+            'START_TOUR' => [
+                'title' => '🚀 KEBERANGKATAN: TUR DIMULAI',
+                'color' => 0x2ECC71,
+                'description' => 'Pemandu wisata telah mengonfirmasi bahwa tur telah resmi dimulai.',
+                'target' => 'Operasional Tur',
+            ],
+            'COMPLETE_TOUR' => [
+                'title' => '🏁 TUR TELAH SELESAI',
+                'color' => 0x9B59B6,
+                'description' => 'Pemandu wisata telah menyelesaikan tur dan kembali ke loket.',
+                'target' => 'Operasional Tur',
+            ],
+            'CHECK_IN' => [
+                'title' => '📍 ABSENSI: PEMANDU CHECK-IN',
+                'color' => 0x2ECC71,
+                'description' => 'Pemandu wisata telah check-in absensi masuk loket operasional.',
+                'target' => 'Absensi Guide',
+            ],
+            'CHECK_OUT' => [
+                'title' => '🚪 ABSENSI: PEMANDU CHECK-OUT',
+                'color' => 0xE67E22,
+                'description' => 'Pemandu wisata telah melakukan absensi pulang loket operasional.',
+                'target' => 'Absensi Guide',
+            ],
+            'CREATE_GUIDE' => [
+                'title' => '👤 PEMANDU WISATA BARU DIDAFTARKAN',
+                'color' => 0x3498DB,
+                'description' => 'Data pemandu wisata baru telah ditambahkan ke sistem.',
+                'target' => 'Master Guide',
+            ],
+            'UPDATE_GUIDE' => [
+                'title' => '📝 DATA PEMANDU DIPERBARUI',
+                'color' => 0xF39C12,
+                'description' => 'Profil, nomor telepon, atau tarif fee pemandu telah diubah.',
+                'target' => 'Master Guide',
+            ],
+            'SUSPEND_GUIDE' => [
+                'title' => '⚠️ PEMANDU DITANGGUHKAN (SUSPEND)',
+                'color' => 0xE74C3C,
+                'description' => 'Pemandu wisata disuspend sementara oleh Administrator.',
+                'target' => 'Master Guide',
+            ],
+            'UNSUSPEND_GUIDE' => [
+                'title' => '🔄 STATUS SUSPEND PEMANDU DICABUT',
+                'color' => 0x2ECC71,
+                'description' => 'Pemandu wisata telah diaktifkan kembali ke daftar operasional.',
+                'target' => 'Master Guide',
+            ],
+            'DELETE_GUIDE' => [
+                'title' => '🗑️ DATA PEMANDU DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Data pemandu wisata telah dihapus permanen dari sistem.',
+                'target' => 'Master Guide',
+            ],
+            'REORDER_QUEUE' => [
+                'title' => '🔀 ANTREAN PEMANDU DIATUR ULANG',
+                'color' => 0x3498DB,
+                'description' => 'Urutan giliran antrean pemandu telah diubah manual oleh staf/admin.',
+                'target' => 'Antrean Guide',
+            ],
+            'SET_QUEUE_POSITION' => [
+                'title' => '🔢 POSISI POINTER ANTREAN DIUBAH',
+                'color' => 0x3498DB,
+                'description' => 'Penunjuk nomor antrean aktif berikutnya telah diatur manual.',
+                'target' => 'Antrean Guide',
+            ],
+            'PAYMENT_GUIDE' => [
+                'title' => '💰 PEMBAYARAN FEE PEMANDU',
+                'color' => 0x2ECC71,
+                'description' => 'Pembayaran fee komisi tur pemandu wisata telah berhasil dicatat.',
+                'target' => 'Fee Guide',
+            ],
+            'CREATE_STAFF_PAYROLL' => [
+                'title' => '📄 SLIP GAJI STAF DITERBITKAN',
+                'color' => 0x3498DB,
+                'description' => 'Slip gaji bulanan staf baru telah diterbitkan.',
+                'target' => 'Gaji Staf',
+            ],
+            'UPDATE_STAFF_PAYROLL' => [
+                'title' => '✏️ SLIP GAJI STAF DIPERBARUI',
+                'color' => 0xF39C12,
+                'description' => 'Komponen gaji staf telah diperbarui.',
+                'target' => 'Gaji Staf',
+            ],
+            'PAY_STAFF_PAYROLL' => [
+                'title' => '💵 PELUNASAN GAJI STAF',
+                'color' => 0x2ECC71,
+                'description' => 'Gaji staf telah dibayarkan lunas dan tercatat di pengeluaran kas.',
+                'target' => 'Gaji Staf',
+            ],
+            'DELETE_STAFF_PAYROLL' => [
+                'title' => '🗑️ SLIP GAJI STAF DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Data slip gaji staf telah dihapus.',
+                'target' => 'Gaji Staf',
+            ],
+            'UPDATE_STAFF_SALARY_SETTING' => [
+                'title' => '⚙️ PENGATURAN GAJI STAF DIUBAH',
+                'color' => 0xF39C12,
+                'description' => 'Standar gaji pokok atau tunjangan staf telah dimodifikasi.',
+                'target' => 'Gaji Staf',
+            ],
+            'CREATE_EXPENSE' => [
+                'title' => '📉 PENCATATAN BIAYA OPERASIONAL',
+                'color' => 0xF39C12,
+                'description' => 'Pengeluaran kas operasional baru telah dicatat.',
+                'target' => 'Biaya Operasional',
+            ],
+            'DELETE_EXPENSE' => [
+                'title' => '🗑️ BIAYA OPERASIONAL DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Catatan pengeluaran operasional telah dihapus.',
+                'target' => 'Biaya Operasional',
+            ],
+            'CREATE_TOUR_PACKAGE' => [
+                'title' => '📦 PAKET WISATA BARU DITAMBAHKAN',
+                'color' => 0x3498DB,
+                'description' => 'Paket wisata baru telah tersedia di katalog pemesanan.',
+                'target' => 'Paket Wisata',
+            ],
+            'UPDATE_TOUR_PACKAGE' => [
+                'title' => '✏️ PAKET WISATA DIPERBARUI',
+                'color' => 0xF39C12,
+                'description' => 'Harga atau durasi paket wisata telah diubah.',
+                'target' => 'Paket Wisata',
+            ],
+            'DELETE_TOUR_PACKAGE' => [
+                'title' => '🗑️ PAKET WISATA DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Paket wisata telah dihapus dari katalog.',
+                'target' => 'Paket Wisata',
+            ],
+            'CREATE_ROLE' => [
+                'title' => '🛡️ ROLE PENGGUNA BARU DIBUAT',
+                'color' => 0x6C63FF,
+                'description' => 'Jabatan pengguna baru dengan hak akses granular telah dibuat.',
+                'target' => 'Role & Hak Akses',
+            ],
+            'UPDATE_ROLE_PERMISSIONS' => [
+                'title' => '🔑 HAK AKSES ROLE DIPERBARUI',
+                'color' => 0x6C63FF,
+                'description' => 'Daftar wewenang operasional role telah dimodifikasi.',
+                'target' => 'Role & Hak Akses',
+            ],
+            'DELETE_ROLE' => [
+                'title' => '🗑️ ROLE PENGGUNA DIHAPUS',
+                'color' => 0xE74C3C,
+                'description' => 'Role custom telah dihapus dari sistem.',
+                'target' => 'Role & Hak Akses',
+            ],
+            'UPDATE_SETTINGS' => [
+                'title' => '⚙️ PENGATURAN SISTEM DIUBAH',
+                'color' => 0x34495E,
+                'description' => 'Parameter konfigurasi sistem, logo, atau tarif telah diperbarui.',
+                'target' => 'Pengaturan Master',
+            ],
+            'EXPORT_REPORT' => [
+                'title' => '📊 EKSPOR LAPORAN CSV',
+                'color' => 0x1ABC9C,
+                'description' => 'Data laporan telah diunduh oleh pengguna dalam format CSV.',
+                'target' => 'Laporan Operasional',
+            ],
+            'EXPORT_DASHBOARD' => [
+                'title' => '📊 EKSPOR DASHBOARD CSV',
+                'color' => 0x1ABC9C,
+                'description' => 'Ringkasan operasional dashboard telah diekspor ke format CSV.',
+                'target' => 'Dashboard Utama',
+            ],
+            'OPEN_SHIFT' => [
+                'title' => '🟢 LOKET OPERASIONAL RESMI DIBUKA',
+                'color' => 0x2ECC71,
+                'description' => 'Loket operasional harian telah dibuka.',
+                'target' => 'Operasional Loket',
+            ],
+            'CLOSE_SHIFT' => [
+                'title' => '🔴 LOKET OPERASIONAL DITUTUP',
+                'color' => 0xE74C3C,
+                'description' => 'Loket operasional harian telah resmi ditutup.',
+                'target' => 'Operasional Loket',
+            ],
+        ];
+
+        if (isset($map[$action])) {
+            return $map[$action];
+        }
+
+        $cleanAction = ucwords(strtolower(str_replace('_', ' ', $action)));
+        if (str_contains($action, 'DELETE') || str_contains($action, 'REMOVE')) {
+            return [
+                'title' => "🗑️ HAPUS DATA: {$cleanAction}",
+                'color' => 0xE74C3C,
+                'description' => "Operasi penghapusan data ({$action}) telah dilakukan.",
+                'target' => 'Sistem Data',
+            ];
+        } elseif (str_contains($action, 'UPDATE') || str_contains($action, 'EDIT')) {
+            return [
+                'title' => "✏️ PERBARUI DATA: {$cleanAction}",
+                'color' => 0xF39C12,
+                'description' => "Operasi perubahan data ({$action}) telah dilakukan.",
+                'target' => 'Sistem Data',
+            ];
+        } elseif (str_contains($action, 'CREATE') || str_contains($action, 'ADD')) {
+            return [
+                'title' => "➕ TAMBAH DATA: {$cleanAction}",
+                'color' => 0x2ECC71,
+                'description' => "Operasi penambahan data baru ({$action}) telah dilakukan.",
+                'target' => 'Sistem Data',
+            ];
+        }
+
+        return [
+            'title' => "ℹ️ AKTIVITAS SISTEM: {$cleanAction}",
+            'color' => 0x3498DB,
+            'description' => "Aktivitas ({$action}) telah dicatat ke audit log sistem.",
+            'target' => 'Sistem',
+        ];
+    }
+
+    /**
+     * Format values array into readable bullets for Discord embeds.
+     */
+    protected function formatValuesForDiscord(array $values): string
+    {
+        $lines = [];
+        $count = 0;
+        foreach ($values as $k => $v) {
+            if (is_array($v)) {
+                $vStr = count($v) . ' item [' . implode(', ', array_slice($v, 0, 4)) . (count($v) > 4 ? '...' : '') . ']';
+            } elseif (is_bool($v)) {
+                $vStr = $v ? 'Ya (True)' : 'Tidak (False)';
+            } elseif (is_null($v)) {
+                $vStr = '-';
+            } else {
+                $vStr = (string) $v;
+                if (mb_strlen($vStr) > 100) {
+                    $vStr = mb_substr($vStr, 0, 97) . '...';
+                }
+            }
+            $cleanKey = ucwords(str_replace(['_', '-'], ' ', $k));
+            $lines[] = "• **{$cleanKey}:** `{$vStr}`";
+            $count++;
+            if ($count >= 8) {
+                $remaining = count($values) - 8;
+                if ($remaining > 0) {
+                    $lines[] = "• *...dan {$remaining} kolom lainnya.*";
+                }
+                break;
+            }
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Shorten User Agent into simple device/browser summary.
+     */
+    protected function formatUserAgent(?string $ua): string
+    {
+        if (empty($ua)) {
+            return 'Browser Umum';
+        }
+
+        $os = 'Lainnya';
+        if (str_contains($ua, 'Windows')) $os = 'Windows';
+        elseif (str_contains($ua, 'Macintosh') || str_contains($ua, 'Mac OS')) $os = 'Mac';
+        elseif (str_contains($ua, 'iPhone')) $os = 'iPhone';
+        elseif (str_contains($ua, 'Android')) $os = 'Android';
+        elseif (str_contains($ua, 'Linux')) $os = 'Linux';
+
+        $browser = 'Browser';
+        if (str_contains($ua, 'Edg/')) $browser = 'Edge';
+        elseif (str_contains($ua, 'Chrome/')) $browser = 'Chrome';
+        elseif (str_contains($ua, 'Firefox/')) $browser = 'Firefox';
+        elseif (str_contains($ua, 'Safari/')) $browser = 'Safari';
+
+        return "`{$browser} / {$os}`";
+    }
+
+    /**
      * Send test notification to verify Discord webhook URL.
      */
-    public function sendTestNotification(string $webhookUrl): array
+    public function sendTestNotification(string $webhookUrl, string $type = 'operational'): array
     {
         $appName = Setting::get('company_name', 'ARTDEVATA');
         $currentUser = auth()->check() ? auth()->user()->name : 'Admin';
 
-        $payload = [
-            'username' => "{$appName} Operasional",
-            'avatar_url' => 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-            'embeds' => [
-                [
-                    'title' => 'UJI COBA WEBHOOK DISCORD ARTDEVATA',
-                    'description' => "Pesan uji coba berhasil terkirim. Sistem notifikasi Webhook Discord untuk **{$appName}** telah terhubung dengan baik.",
-                    'color' => 0x3498DB, // Info Blue
-                    'fields' => [
-                        [
-                            'name' => 'Status Koneksi',
-                            'value' => 'Terhubung & Siap Digunakan',
-                            'inline' => true,
+        if ($type === 'activity') {
+            $payload = [
+                'username' => "{$appName} Audit Trail",
+                'avatar_url' => 'https://cdn-icons-png.flaticon.com/512/942/942748.png',
+                'embeds' => [
+                    [
+                        'title' => 'UJI COBA WEBHOOK DISCORD - AKTIVITAS & AUDIT ARTDEVATA',
+                        'description' => "Pesan uji coba berhasil terkirim. Webhook ini terhubung khusus untuk memantau **Aktivitas Login, Logout, Akses Web, dan seluruh operasi CRUD** pada sistem **{$appName}**.",
+                        'color' => 0x6C63FF, // Indigo / Purple
+                        'fields' => [
+                            [
+                                'name' => 'Jenis Saluran',
+                                'value' => '🛡️ Log Aktivitas, Keamanan & CRUD',
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Waktu Pengujian',
+                                'value' => Carbon::now()->format('d M Y, H:i:s') . ' WITA',
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Penguji',
+                                'value' => $currentUser,
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Status Koneksi',
+                                'value' => '✅ Terhubung & Siap Merekam Log',
+                                'inline' => false,
+                            ],
                         ],
-                        [
-                            'name' => 'Waktu Pengujian',
-                            'value' => Carbon::now()->format('d M Y, H:i:s') . ' WITA',
-                            'inline' => true,
+                        'footer' => [
+                            'text' => "{$appName} Management System • Notifikasi Audit Trail & Aktivitas Web",
                         ],
-                        [
-                            'name' => 'Penguji',
-                            'value' => $currentUser,
-                            'inline' => true,
-                        ],
+                        'timestamp' => Carbon::now()->toISOString(),
                     ],
-                    'footer' => [
-                        'text' => "{$appName} Management System • Notifikasi Discord Webhook",
-                    ],
-                    'timestamp' => Carbon::now()->toISOString(),
                 ],
-            ],
-        ];
+            ];
+        } else {
+            $payload = [
+                'username' => "{$appName} Operasional",
+                'avatar_url' => 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                'embeds' => [
+                    [
+                        'title' => 'UJI COBA WEBHOOK DISCORD - OPERASIONAL LOKET ARTDEVATA',
+                        'description' => "Pesan uji coba berhasil terkirim. Webhook ini terhubung khusus untuk **Rekap Pembukaan & Penutupan Loket Harian** pada sistem **{$appName}**.",
+                        'color' => 0x3498DB, // Info Blue
+                        'fields' => [
+                            [
+                                'name' => 'Jenis Saluran',
+                                'value' => '🏪 Operasional Buka/Tutup Loket',
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Waktu Pengujian',
+                                'value' => Carbon::now()->format('d M Y, H:i:s') . ' WITA',
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Penguji',
+                                'value' => $currentUser,
+                                'inline' => true,
+                            ],
+                            [
+                                'name' => 'Status Koneksi',
+                                'value' => '✅ Terhubung & Siap Menerima Rekap',
+                                'inline' => false,
+                            ],
+                        ],
+                        'footer' => [
+                            'text' => "{$appName} Management System • Notifikasi Webhook Loket Operasional",
+                        ],
+                        'timestamp' => Carbon::now()->toISOString(),
+                    ],
+                ],
+            ];
+        }
 
         try {
             $masked = $this->maskUrl($webhookUrl);
@@ -357,7 +879,7 @@ class DiscordWebhookService
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'message' => 'Notifikasi uji coba berhasil dikirim ke channel Discord!',
+                    'message' => ($type === 'activity' ? 'Webhook Aktivitas & Audit' : 'Webhook Operasional Loket') . ' berhasil terhubung ke Discord!',
                 ];
             }
 

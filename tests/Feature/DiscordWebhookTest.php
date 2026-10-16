@@ -208,4 +208,154 @@ class DiscordWebhookTest extends TestCase
         $closeResult = $shiftService->closeShift($this->staff);
         $this->assertEquals('CLOSED', $closeResult['status']);
     }
+
+    public function test_activity_webhook_url_is_sourced_from_config_or_env_or_setting()
+    {
+        config(['services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/99999/activity-url']);
+
+        $discordService = app(\App\Services\DiscordWebhookService::class);
+        $this->assertTrue($discordService->isActivityEnabled());
+        $this->assertEquals('https://discord.com/api/webhooks/99999/activity-url', $discordService->getActivityWebhookUrl());
+
+        // Test fallback to database Setting
+        config(['services.discord.activity_webhook_url' => null]);
+        Setting::set('discord_activity_webhook_url', 'https://discord.com/api/webhooks/88888/db-activity');
+        $this->assertEquals('https://discord.com/api/webhooks/88888/db-activity', $discordService->getActivityWebhookUrl());
+    }
+
+    public function test_admin_can_send_test_activity_discord_webhook()
+    {
+        config(['services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/99999/activity-url']);
+
+        Http::fake([
+            'https://discord.com/api/webhooks/99999/*' => Http::response(null, 204),
+        ]);
+
+        $response = $this->actingAs($this->admin)->postJson(route('settings.test-discord'), [
+            'type' => 'activity',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '99999/activity-url') &&
+                   str_contains($request['embeds'][0]['title'], 'AKTIVITAS & AUDIT');
+        });
+    }
+
+    public function test_login_and_logout_triggers_activity_discord_webhook()
+    {
+        config(['services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/99999/activity-url']);
+
+        Http::fake([
+            'https://discord.com/api/webhooks/99999/*' => Http::response(null, 204),
+        ]);
+
+        $user = User::factory()->create([
+            'email' => 'staff_activity@artdevata.com',
+            'password' => bcrypt('password123'),
+            'role' => 'STAFF',
+            'is_active' => true,
+            'approval_status' => 'APPROVED',
+        ]);
+
+        // 1. Perform Login
+        $this->post('/login', [
+            'email' => 'staff_activity@artdevata.com',
+            'password' => 'password123',
+        ]);
+
+        Http::assertSent(function ($request) {
+            $embed = $request['embeds'][0];
+            return str_contains($request->url(), '99999/activity-url') &&
+                   str_contains($embed['title'], 'LOGIN');
+        });
+
+        // 2. Perform Logout
+        $this->actingAs($user)->post('/logout');
+
+        Http::assertSent(function ($request) {
+            $embed = $request['embeds'][0];
+            return str_contains($request->url(), '99999/activity-url') &&
+                   str_contains($embed['title'], 'LOGOUT');
+        });
+    }
+
+    public function test_crud_operations_trigger_activity_discord_webhook()
+    {
+        config(['services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/99999/activity-url']);
+
+        Http::fake([
+            'https://discord.com/api/webhooks/99999/*' => Http::response(null, 204),
+        ]);
+
+        // Create an expense (CRUD operation)
+        $this->actingAs($this->admin)->post(route('expenses.store'), [
+            'category' => 'Bahan Bakar & Tol',
+            'description' => 'Bensin Kijang Innova',
+            'amount' => 175000,
+            'expense_date' => Carbon::today()->toDateString(),
+        ]);
+
+        Http::assertSent(function ($request) {
+            $embed = $request['embeds'][0];
+            return str_contains($request->url(), '99999/activity-url') &&
+                   str_contains($embed['title'], 'BIAYA OPERASIONAL');
+        });
+    }
+
+    public function test_operational_and_activity_webhooks_use_different_urls_independently()
+    {
+        config([
+            'services.discord.webhook_url' => 'https://discord.com/api/webhooks/11111/operational-channel',
+            'services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/22222/activity-channel',
+        ]);
+
+        Http::fake([
+            'https://discord.com/api/webhooks/11111/*' => Http::response(null, 204),
+            'https://discord.com/api/webhooks/22222/*' => Http::response(null, 204),
+        ]);
+
+        // Action 1: Open operational shift (Should ONLY send to operational webhook 11111)
+        $shiftService = app(OperationalShiftService::class);
+        $shiftService->openShift($this->staff);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '11111/operational-channel') &&
+                   str_contains($request['embeds'][0]['title'], 'LOKET OPERASIONAL RESMI DIBUKA');
+        });
+
+        // Action 2: Trigger Audit Log (Should ONLY send to activity webhook 22222)
+        \App\Models\AuditLog::log('CREATE_BOOKING', Booking::class, 99, null, [
+            'booking_code' => 'BK-SEPARATE-001',
+            'total_price' => 500000,
+        ]);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '22222/activity-channel') &&
+                   str_contains($request['embeds'][0]['title'], 'PEMESANAN TUR BARU DIBUAT');
+        });
+    }
+
+    public function test_access_denied_triggers_security_alert_on_activity_webhook()
+    {
+        config(['services.discord.activity_webhook_url' => 'https://discord.com/api/webhooks/99999/activity-url']);
+
+        Http::fake([
+            'https://discord.com/api/webhooks/99999/*' => Http::response(null, 204),
+        ]);
+
+        // Non-admin attempting to access restricted admin settings
+        $response = $this->actingAs($this->staff)->get(route('settings.index'));
+        $response->assertStatus(403);
+
+        Http::assertSent(function ($request) {
+            $embed = $request['embeds'][0];
+            return str_contains($request->url(), '99999/activity-url') &&
+                   str_contains($embed['title'], 'AKSES WEB DITOLAK (403)');
+        });
+    }
 }

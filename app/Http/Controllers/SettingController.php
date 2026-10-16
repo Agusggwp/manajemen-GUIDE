@@ -32,13 +32,16 @@ class SettingController extends Controller
             'operational_auto_close_time' => Setting::get('operational_auto_close_time', '18:00'),
             'discord_webhook_enabled' => Setting::get('discord_webhook_enabled', '0'),
             'discord_webhook_url' => Setting::get('discord_webhook_url', ''),
+            'discord_activity_webhook_url' => Setting::get('discord_activity_webhook_url', ''),
         ];
 
         $operationalShift = app(\App\Services\OperationalShiftService::class)->getStatus();
         $queueState = GuideQueueState::getState();
         $tourPackages = TourPackage::with('prices')->orderBy('name')->get();
         $activeTab = $request->query('tab', 'brand');
-        $discordWebhookConfigured = !empty(app(\App\Services\DiscordWebhookService::class)->getWebhookUrl());
+        $discordService = app(\App\Services\DiscordWebhookService::class);
+        $discordWebhookConfigured = !empty($discordService->getWebhookUrl());
+        $discordActivityWebhookConfigured = !empty($discordService->getActivityWebhookUrl());
 
         $roles = Role::withCount('users')->orderBy('id')->get();
         $availablePermissions = Role::availablePermissions();
@@ -50,6 +53,7 @@ class SettingController extends Controller
             'activeTab',
             'tourPackages',
             'discordWebhookConfigured',
+            'discordActivityWebhookConfigured',
             'roles',
             'availablePermissions'
         ));
@@ -77,6 +81,8 @@ class SettingController extends Controller
             'operational_auto_close_time' => 'nullable|string|max:10',
             'expense_categories' => 'nullable|array',
             'expense_categories.*' => 'nullable|string|max:100',
+            'discord_webhook_url' => 'nullable|url|max:255',
+            'discord_activity_webhook_url' => 'nullable|url|max:255',
         ]);
 
         Setting::set('company_name', $validated['company_name']);
@@ -108,6 +114,13 @@ class SettingController extends Controller
                 'Konsumsi & Air Mineral',
                 'Lain-lain',
             ]));
+        }
+
+        if ($request->has('discord_webhook_url')) {
+            Setting::set('discord_webhook_url', $request->input('discord_webhook_url') ?: '');
+        }
+        if ($request->has('discord_activity_webhook_url')) {
+            Setting::set('discord_activity_webhook_url', $request->input('discord_activity_webhook_url') ?: '');
         }
 
         // Handle Logo Removal or Upload
@@ -144,6 +157,11 @@ class SettingController extends Controller
             AuditLog::log('SET_QUEUE_POSITION', GuideQueueState::class, 1, ['current_position' => $oldPos], ['current_position' => $queueState->current_position]);
         }
 
+        AuditLog::log('UPDATE_SETTINGS', Setting::class, null, null, [
+            'company_name' => $validated['company_name'],
+            'default_guide_fee' => $validated['default_guide_fee'],
+        ]);
+
         $activeTab = $request->input('active_tab', 'brand');
 
         return redirect()->route('settings.index', ['tab' => $activeTab])
@@ -151,27 +169,37 @@ class SettingController extends Controller
     }
 
     /**
-     * Send test notification to Discord Webhook using .env configuration.
+     * Send test notification to Discord Webhook using .env or database configuration.
      */
     public function testDiscordWebhook(Request $request, \App\Services\DiscordWebhookService $discordService)
     {
-        $url = $request->input('discord_webhook_url') ?: $discordService->getWebhookUrl();
+        $type = $request->input('type', 'operational');
+
+        if ($type === 'activity') {
+            $url = $request->input('discord_activity_webhook_url') ?: $discordService->getActivityWebhookUrl();
+            $envVar = 'DISCORD_ACTIVITY_WEBHOOK_URL';
+            $channelLabel = 'Aktivitas & Audit Trail';
+        } else {
+            $url = $request->input('discord_webhook_url') ?: $discordService->getWebhookUrl();
+            $envVar = 'DISCORD_WEBHOOK_URL';
+            $channelLabel = 'Operasional Loket';
+        }
 
         if (empty($url)) {
             return response()->json([
                 'success' => false,
-                'message' => 'URL Webhook Discord belum diatur di file .env (DISCORD_WEBHOOK_URL). Silakan isi DISCORD_WEBHOOK_URL di file .env terlebih dahulu.',
+                'message' => "URL Webhook Discord {$channelLabel} belum diatur di file .env ({$envVar}) atau form pengaturan. Silakan isi terlebih dahulu.",
             ], 422);
         }
 
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Format URL Webhook Discord di .env tidak valid.',
+                'message' => "Format URL Webhook Discord {$channelLabel} tidak valid.",
             ], 422);
         }
 
-        $result = $discordService->sendTestNotification($url);
+        $result = $discordService->sendTestNotification($url, $type);
         if ($result['success']) {
             return response()->json([
                 'success' => true,

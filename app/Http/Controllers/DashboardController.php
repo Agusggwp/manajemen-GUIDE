@@ -153,6 +153,12 @@ class DashboardController extends Controller
         $selectedMonth = $request->filled('month') ? (int) $request->month : $currentMonth;
         $selectedYear = $request->filled('year') ? (int) $request->year : $currentYear;
 
+        \App\Models\AuditLog::log('EXPORT_DASHBOARD', 'Dashboard', null, null, [
+            'period' => $period,
+            'month' => $selectedMonth,
+            'year' => $selectedYear,
+        ]);
+
         $months = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',

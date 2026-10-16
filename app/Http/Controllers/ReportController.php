@@ -85,6 +85,10 @@ class ReportController extends Controller
         $totalProfit = $totalRevenue - $totalGuideFee - $totalOperational - $totalStaffSalary;
 
         if ($request->query('export') === 'csv') {
+            \App\Models\AuditLog::log('EXPORT_REPORT', 'Report', null, null, [
+                'type' => 'Laporan Pendapatan & Omset',
+                'period' => $startDate . ' s/d ' . $endDate,
+            ]);
             return $this->exportRevenueCsv($bookings, $staffPayrolls, $startDate, $endDate, $totalRevenue, $totalGuideFee, $totalOperational, $totalStaffSalary, $totalProfit, $periodLabel);
         }
 
