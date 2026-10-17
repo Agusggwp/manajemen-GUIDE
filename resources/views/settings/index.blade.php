@@ -4,8 +4,8 @@
 @section('header', 'Pengaturan Sistem')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6" 
-     x-data="{
+<div class="space-y-6"
+    x-data="{
          activeTab: '{{ request()->query('tab', $activeTab ?? 'brand') }}',
          categories: {{ Js::from($settings['expense_categories']) }},
          newCategory: '',
@@ -153,7 +153,8 @@
         <div class="flex items-center gap-3">
             <span class="w-12 h-12 rounded-2xl bg-[#6C63FF]/15 text-[#6C63FF] flex items-center justify-center shrink-0 shadow-2xs">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
             </span>
             <div>
@@ -172,10 +173,10 @@
     <!-- Sub Menu Navigation (Tab Bar) -->
     <div class="clay-card p-1.5 bg-[#F4F3FA] border border-[#E8E6F0] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
         <!-- Sub-Menu 1: Identitas & Brand -->
-        <button type="button" 
-                @click="updateTab('brand')"
-                :class="activeTab === 'brand' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('brand')"
+            :class="activeTab === 'brand' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
@@ -183,10 +184,10 @@
         </button>
 
         <!-- Sub-Menu 2: Tarif & Biaya Tour -->
-        <button type="button" 
-                @click="updateTab('tariffs')"
-                :class="activeTab === 'tariffs' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('tariffs')"
+            :class="activeTab === 'tariffs' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -194,10 +195,10 @@
         </button>
 
         <!-- Sub-Menu 3: Paket Wisata & Harga (Baru) -->
-        <button type="button" 
-                @click="updateTab('packages')"
-                :class="activeTab === 'packages' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('packages')"
+            :class="activeTab === 'packages' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
@@ -205,10 +206,10 @@
         </button>
 
         <!-- Sub-Menu 4: Kategori Biaya -->
-        <button type="button" 
-                @click="updateTab('categories')"
-                :class="activeTab === 'categories' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('categories')"
+            :class="activeTab === 'categories' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
@@ -216,10 +217,10 @@
         </button>
 
         <!-- Sub-Menu 5: Validasi & Antrean -->
-        <button type="button" 
-                @click="updateTab('operational')"
-                :class="activeTab === 'operational' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('operational')"
+            :class="activeTab === 'operational' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
@@ -227,10 +228,10 @@
         </button>
 
         <!-- Sub-Menu 6: Role & Hak Akses -->
-        <button type="button" 
-                @click="updateTab('roles')"
-                :class="activeTab === 'roles' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
-                class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+        <button type="button"
+            @click="updateTab('roles')"
+            :class="activeTab === 'roles' ? 'bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/30 font-bold' : 'text-[#77768C] hover:text-[#29283D] hover:bg-white/80 font-semibold'"
+            class="px-2.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -263,13 +264,13 @@
                     <!-- Current Logo Preview -->
                     <div class="flex flex-col items-center justify-center p-3.5 bg-[#F4F3FA] rounded-2xl border border-[#E8E6F0] shadow-sm shrink-0 w-32 h-32">
                         @if(!empty($settings['company_logo']) && file_exists(public_path($settings['company_logo'])))
-                            <img src="{{ asset($settings['company_logo']) }}" alt="Logo Perusahaan" class="max-w-full max-h-20 object-contain">
-                            <span class="text-[9px] text-[#6C63FF] font-bold mt-1.5">Logo Kustom</span>
+                        <img src="{{ asset($settings['company_logo']) }}" alt="Logo Perusahaan" class="max-w-full max-h-20 object-contain">
+                        <span class="text-[9px] text-[#6C63FF] font-bold mt-1.5">Logo Kustom</span>
                         @else
-                            <div class="w-14 h-14 rounded-2xl bg-[#6C63FF] text-[#FFD166] font-black text-2xl flex items-center justify-center shadow-xs">
-                                {{ substr($settings['company_name'] ?? 'A', 0, 1) }}
-                            </div>
-                            <span class="text-[9px] text-[#77768C] font-semibold mt-1.5">Icon Bawaan</span>
+                        <div class="w-14 h-14 rounded-2xl bg-[#6C63FF] text-[#FFD166] font-black text-2xl flex items-center justify-center shadow-xs">
+                            {{ substr($settings['company_name'] ?? 'A', 0, 1) }}
+                        </div>
+                        <span class="text-[9px] text-[#77768C] font-semibold mt-1.5">Icon Bawaan</span>
                         @endif
                     </div>
 
@@ -278,7 +279,7 @@
                         <div>
                             <label class="block font-bold text-[#29283D] mb-1.5">Unggah File Logo Baru</label>
                             <input type="file" name="company_logo" accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                                   class="w-full text-xs text-[#77768C] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#6C63FF] file:text-white hover:file:bg-[#584FE4] file:cursor-pointer cursor-pointer border border-[#E8E6F0] rounded-xl bg-white p-1.5 shadow-inner">
+                                class="w-full text-xs text-[#77768C] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#6C63FF] file:text-white hover:file:bg-[#584FE4] file:cursor-pointer cursor-pointer border border-[#E8E6F0] rounded-xl bg-white p-1.5 shadow-inner">
                             <span class="text-[10px] text-[#77768C] block mt-1">Format: PNG, JPG, SVG, WebP (Rekomendasi rasio 1:1 atau horizontal, transparan, maks. 2MB).</span>
                         </div>
 
@@ -297,35 +298,35 @@
                     <div class="sm:col-span-2">
                         <label class="block font-bold text-[#29283D] mb-1.5">Nama Aplikasi / Brand <span class="text-rose-500">*</span></label>
                         <input type="text" name="company_name" value="{{ old('company_name', $settings['company_name']) }}" required placeholder="ARTDEVATA"
-                               class="clay-input w-full font-bold text-[#29283D]">
+                            class="clay-input w-full font-bold text-[#29283D]">
                         <span class="text-[10px] text-[#77768C] mt-1 block">Nama utama sistem di dashboard & login.</span>
                     </div>
 
                     <div>
                         <label class="block font-bold text-[#29283D] mb-1.5">Inisial / Singkatan</label>
                         <input type="text" name="app_short_name" value="{{ old('app_short_name', $settings['app_short_name']) }}" maxlength="5" placeholder="A"
-                               class="clay-input w-full font-bold text-center text-[#29283D]">
+                            class="clay-input w-full font-bold text-center text-[#29283D]">
                         <span class="text-[10px] text-[#77768C] mt-1 block">Tampil jika logo gambar kosong.</span>
                     </div>
 
                     <div class="sm:col-span-2">
                         <label class="block font-bold text-[#29283D] mb-1.5">Sub-judul / Tagline Aplikasi</label>
                         <input type="text" name="company_tagline" value="{{ old('company_tagline', $settings['company_tagline']) }}" placeholder="Guide Management"
-                               class="clay-input w-full text-[#29283D]">
+                            class="clay-input w-full text-[#29283D]">
                         <span class="text-[10px] text-[#77768C] mt-1 block">Tagline di bawah logo (sidebar & login).</span>
                     </div>
 
                     <div>
                         <label class="block font-bold text-[#29283D] mb-1.5">Judul Portal Guide</label>
                         <input type="text" name="guide_portal_title" value="{{ old('guide_portal_title', $settings['guide_portal_title']) }}" placeholder="Portal Pemandu Wisata"
-                               class="clay-input w-full text-[#29283D]">
+                            class="clay-input w-full text-[#29283D]">
                         <span class="text-[10px] text-[#77768C] mt-1 block">Label header di HP guide.</span>
                     </div>
 
                     <div class="sm:col-span-3">
                         <label class="block font-bold text-[#29283D] mb-1.5">Teks Footer / Hak Cipta</label>
                         <input type="text" name="app_footer_text" value="{{ old('app_footer_text', $settings['app_footer_text']) }}" placeholder="© 2026 ARTDEVATA Bali. Hak cipta dilindungi."
-                               class="clay-input w-full text-[#29283D]">
+                            class="clay-input w-full text-[#29283D]">
                     </div>
                 </div>
             </div>
@@ -341,7 +342,7 @@
                     <div>
                         <label class="block font-bold text-[#29283D] mb-1.5">Nomor Telepon Operasional</label>
                         <input type="text" name="company_phone" value="{{ old('company_phone', $settings['company_phone']) }}"
-                               placeholder="+62 812-3456-7890" class="clay-input w-full">
+                            placeholder="+62 812-3456-7890" class="clay-input w-full">
                     </div>
 
                     <div>
@@ -377,7 +378,7 @@
                         <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#6C63FF] focus-within:ring-2 focus-within:ring-[#6C63FF]/20">
                             <span class="px-3.5 py-2.5 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                             <input type="number" name="default_guide_fee" value="{{ old('default_guide_fee', $settings['default_guide_fee']) }}" min="0" step="5000" required
-                                   class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
+                                class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
                         </div>
                         <span class="text-[10px] text-[#77768C] block leading-relaxed">
                             Tarif standar yang dibayarkan kepada guide per orang tamu saat melayani tour langsung/booking (bila guide bertipe fee <em>PER_GUEST</em>).
@@ -393,7 +394,7 @@
                         <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#FF8A65] focus-within:ring-2 focus-within:ring-[#FF8A65]/20">
                             <span class="px-3.5 py-2.5 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                             <input type="number" name="default_phone_fee" value="{{ old('default_phone_fee', $settings['default_phone_fee']) }}" min="0" step="1000" required
-                                   class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
+                                class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
                         </div>
                         <span class="text-[10px] text-[#77768C] block leading-relaxed">
                             Biaya operasional telepon/komunikasi yang otomatis disimpan dan memotong total margin tour langsung (bekerja otomatis seperti fee guide).
@@ -409,7 +410,7 @@
                         <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#FFD166] focus-within:ring-2 focus-within:ring-[#FFD166]/20">
                             <span class="px-3.5 py-2.5 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                             <input type="number" name="default_driver_fee" value="{{ old('default_driver_fee', $settings['default_driver_fee']) }}" min="0" step="5000" required
-                                   class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
+                                class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
                         </div>
                         <span class="text-[10px] text-[#77768C] block leading-relaxed">
                             Nominal acuan uang jalan/tip driver yang otomatis terisi saat opsi "Kasih Uang ke Driver" diaktifkan pada form tour langsung.
@@ -426,7 +427,7 @@
                         <span>Mekanisme Kalkulasi Otomatis (Live Snapshot)</span>
                     </div>
                     <p class="text-[11px] leading-relaxed text-[#147a6f]/90">
-                        Kedua parameter tarif di atas akan langsung menjadi nilai default saat admin atau staf membuka form <strong>Tour Langsung (Walk-in)</strong>. 
+                        Kedua parameter tarif di atas akan langsung menjadi nilai default saat admin atau staf membuka form <strong>Tour Langsung (Walk-in)</strong>.
                         Rumus margin: <code class="font-mono bg-white/60 px-1.5 py-0.5 rounded text-[10px]">Estimasi Margin = Total Tagihan - Fee Guide - Biaya Telepon</code>.
                     </p>
                 </div>
@@ -435,7 +436,9 @@
                 <div class="p-4 bg-gradient-to-r from-[#6C63FF]/10 via-[#ECEBFC] to-white rounded-2xl border border-[#6C63FF]/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                     <div class="flex items-center gap-3">
                         <span class="w-9 h-9 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
                         </span>
                         <div>
                             <h4 class="font-extrabold text-[#29283D] text-xs">Mau Mengubah Nama & Harga Paket Wisata Tamu?</h4>
@@ -467,10 +470,10 @@
                 <!-- Input to add new category -->
                 <div class="flex gap-2">
                     <input type="text" x-model="newCategory" @keydown.enter.prevent="addCategory()"
-                           placeholder="Ketik kategori baru (contoh: Biaya Perahu & Boat)..."
-                           class="clay-input flex-1 text-xs">
+                        placeholder="Ketik kategori baru (contoh: Biaya Perahu & Boat)..."
+                        class="clay-input flex-1 text-xs">
                     <button type="button" @click="addCategory()"
-                            class="clay-btn-primary px-4 py-2 font-bold text-xs flex items-center gap-1 shrink-0">
+                        class="clay-btn-primary px-4 py-2 font-bold text-xs flex items-center gap-1 shrink-0">
                         + Tambah Kategori
                     </button>
                 </div>
@@ -484,11 +487,11 @@
                                 <div class="flex items-center gap-2.5 flex-1">
                                     <span class="w-6 h-6 rounded-full bg-white text-[#6C63FF] text-[10px] font-black flex items-center justify-center shrink-0 border border-[#E8E6F0]" x-text="index + 1"></span>
                                     <input type="text" :name="'expense_categories[' + index + ']'" x-model="categories[index]" required
-                                           class="flex-1 px-2 py-1 bg-transparent font-bold text-[#29283D] text-xs border-b border-transparent focus:border-[#6C63FF] outline-none">
+                                        class="flex-1 px-2 py-1 bg-transparent font-bold text-[#29283D] text-xs border-b border-transparent focus:border-[#6C63FF] outline-none">
                                 </div>
                                 <button type="button" @click="removeCategory(index)"
-                                        class="p-1.5 text-[#77768C] hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                                        title="Hapus kategori ini">
+                                    class="p-1.5 text-[#77768C] hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                                    title="Hapus kategori ini">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -516,15 +519,15 @@
                         <div class="flex items-center gap-2.5">
                             <h3 class="font-extrabold text-[#29283D] text-sm font-display">Sistem Buka - Tutup Operasional Loket (Shift Kasir)</h3>
                             @if($operationalShift['is_open'])
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-[#72D6C9]/20 text-[#147a6f] border border-[#72D6C9]/50 inline-flex items-center gap-1.5 shadow-2xs">
-                                    <span class="w-2 h-2 rounded-full bg-[#147a6f] animate-pulse"></span>
-                                    LOKET BUKA
-                                </span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-[#72D6C9]/20 text-[#147a6f] border border-[#72D6C9]/50 inline-flex items-center gap-1.5 shadow-2xs">
+                                <span class="w-2 h-2 rounded-full bg-[#147a6f] animate-pulse"></span>
+                                LOKET BUKA
+                            </span>
                             @else
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1.5 shadow-2xs">
-                                    <span class="w-2 h-2 rounded-full bg-rose-600"></span>
-                                    LOKET TUTUP
-                                </span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1.5 shadow-2xs">
+                                <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                                LOKET TUTUP
+                            </span>
                             @endif
                         </div>
                         <p class="text-[11px] text-[#77768C] mt-1">
@@ -535,34 +538,34 @@
                     <!-- Live Quick Action Button -->
                     <div class="shrink-0 flex items-center gap-2">
                         @if($operationalShift['is_open'])
-                            <button type="submit" 
-                                    form="settings-close-shift-form"
-                                    class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
-                                <span>Tutup Loket Sekarang (Manual)</span>
-                            </button>
+                        <button type="submit"
+                            form="settings-close-shift-form"
+                            class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            <span>Tutup Loket Sekarang (Manual)</span>
+                        </button>
                         @else
-                            @if($operationalShift['active_guides_count'] > 0)
-                                <button type="submit" 
-                                        form="settings-force-close-shift-form"
-                                        class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer animate-pulse">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                    <span>Force Tutup & Checkout ({{ $operationalShift['active_guides_count'] }})</span>
-                                </button>
-                            @endif
+                        @if($operationalShift['active_guides_count'] > 0)
+                        <button type="submit"
+                            form="settings-force-close-shift-form"
+                            class="clay-btn bg-rose-500 hover:bg-rose-600 text-white border-rose-600 px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer animate-pulse">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            <span>Force Tutup & Checkout ({{ $operationalShift['active_guides_count'] }})</span>
+                        </button>
+                        @endif
 
-                            <button type="submit" 
-                                    form="settings-open-shift-form"
-                                    class="clay-btn bg-[#72D6C9] hover:bg-[#5fc0b3] text-[#147a6f] border-[#72D6C9] px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                                </svg>
-                                <span>Buka Loket Sekarang (Manual)</span>
-                            </button>
+                        <button type="submit"
+                            form="settings-open-shift-form"
+                            class="clay-btn bg-[#72D6C9] hover:bg-[#5fc0b3] text-[#147a6f] border-[#72D6C9] px-4 py-2 text-xs font-black shadow-md flex items-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                            </svg>
+                            <span>Buka Loket Sekarang (Manual)</span>
+                        </button>
                         @endif
                     </div>
                 </div>
@@ -587,11 +590,11 @@
                         <span class="text-[10px] text-[#77768C] font-bold block uppercase tracking-wider">Riwayat Terakhir</span>
                         <div class="text-xs font-medium text-[#29283D] truncate">
                             @if($operationalShift['is_open'] && $operationalShift['opened_at'])
-                                Buka: {{ \Carbon\Carbon::parse($operationalShift['opened_at'])->format('H:i') }} ({{ $operationalShift['opened_by'] ?? 'Staf' }})
+                            Buka: {{ \Carbon\Carbon::parse($operationalShift['opened_at'])->format('H:i') }} ({{ $operationalShift['opened_by'] ?? 'Staf' }})
                             @elseif($operationalShift['closed_at'])
-                                Tutup: {{ \Carbon\Carbon::parse($operationalShift['closed_at'])->format('H:i') }} ({{ $operationalShift['closed_by'] ?? 'Sistem' }})
+                            Tutup: {{ \Carbon\Carbon::parse($operationalShift['closed_at'])->format('H:i') }} ({{ $operationalShift['closed_by'] ?? 'Sistem' }})
                             @else
-                                Belum ada riwayat hari ini
+                            Belum ada riwayat hari ini
                             @endif
                         </div>
                     </div>
@@ -630,7 +633,7 @@
                         <div class="space-y-1.5">
                             <label class="block font-bold text-[#29283D] text-xs">Jam Buka Otomatis (WITA)</label>
                             <input type="time" name="operational_auto_open_time" value="{{ old('operational_auto_open_time', $settings['operational_auto_open_time']) }}"
-                                   class="clay-input w-full font-bold text-[#29283D] text-xs">
+                                class="clay-input w-full font-bold text-[#29283D] text-xs">
                             <span class="text-[10px] text-[#77768C] block">Mulai jam ini, guide diizinkan untuk check-in.</span>
                         </div>
 
@@ -638,7 +641,7 @@
                         <div class="space-y-1.5">
                             <label class="block font-bold text-[#29283D] text-xs">Jam Tutup Otomatis (WITA)</label>
                             <input type="time" name="operational_auto_close_time" value="{{ old('operational_auto_close_time', $settings['operational_auto_close_time']) }}"
-                                   class="clay-input w-full font-bold text-[#29283D] text-xs">
+                                class="clay-input w-full font-bold text-[#29283D] text-xs">
                             <span class="text-[10px] text-[#77768C] block">Pada jam ini, semua guide aktif otomatis di-checkout.</span>
                         </div>
                     </div>
@@ -681,13 +684,13 @@
 
                 <div class="p-5 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-3">
                     <p class="text-[11px] text-amber-900 leading-relaxed">
-                        Posisi antrean terakhir yang mendapatkan giliran penugasan: <strong>#{{ $queueState->current_position }}</strong>. 
+                        Posisi antrean terakhir yang mendapatkan giliran penugasan: <strong>#{{ $queueState->current_position }}</strong>.
                         Anda dapat mengubah nomor ini secara manual jika terjadi pertukaran giliran atau pembatalan di dermaga.
                     </p>
                     <div class="flex items-center space-x-3">
                         <span class="font-bold text-[#29283D] text-xs">Set Posisi Giliran ke #</span>
                         <input type="number" name="current_position" value="{{ $queueState->current_position }}" min="0" max="999"
-                               class="w-28 px-3 py-1.5 clay-input font-bold text-center text-sm text-[#29283D]">
+                            class="w-28 px-3 py-1.5 clay-input font-bold text-center text-sm text-[#29283D]">
                     </div>
                 </div>
             </div>
@@ -698,7 +701,7 @@
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-[#5865F2]/15 text-[#5865F2] flex items-center justify-center shrink-0 shadow-2xs">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
                             </svg>
                         </div>
                         <div>
@@ -717,7 +720,7 @@
 
                 <!-- DUA SALURAN WEBHOOK TERPISAH (GRID 2 KOLOM) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    
+
                     <!-- SALURAN 1: OPERASIONAL LOKET -->
                     <div class="p-5 bg-white/95 rounded-2xl border border-[#E8E6F0] shadow-2xs space-y-4 flex flex-col justify-between">
                         <div class="space-y-3">
@@ -744,14 +747,14 @@
                                     URL Webhook Loket (.env / Database):
                                 </label>
                                 <input type="url" name="discord_webhook_url" id="input_discord_webhook_url"
-                                       value="{{ old('discord_webhook_url', $settings['discord_webhook_url'] ?? '') }}"
-                                       placeholder="https://discord.com/api/webhooks/..."
-                                       class="clay-input w-full text-xs font-mono text-slate-700">
+                                    value="{{ old('discord_webhook_url', $settings['discord_webhook_url'] ?? '') }}"
+                                    placeholder="https://discord.com/api/webhooks/..."
+                                    class="clay-input w-full text-xs font-mono text-slate-700">
                                 <p class="text-[10px] text-[#77768C]">
                                     @if(config('services.discord.webhook_url') || env('DISCORD_WEBHOOK_URL'))
-                                        <span class="text-emerald-600 font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_WEBHOOK_URL).</span>
+                                    <span class="text-emerald-600 font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_WEBHOOK_URL).</span>
                                     @else
-                                        Kosongkan jika diatur lewat .env, atau tempelkan URL webhook langsung di sini.
+                                    Kosongkan jika diatur lewat .env, atau tempelkan URL webhook langsung di sini.
                                     @endif
                                 </p>
                             </div>
@@ -760,9 +763,9 @@
                         <div class="pt-3 border-t border-[#E8E6F0] flex items-center justify-between gap-2">
                             <span class="text-[10px] text-[#77768C] italic">Channel: Operasional Loket</span>
                             <button type="button" id="btn-test-discord-operational"
-                                    onclick="testDiscordWebhook('operational')"
-                                    style="background-color: #10B981 !important; color: #ffffff !important;"
-                                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
+                                onclick="testDiscordWebhook('operational')"
+                                style="background-color: #10B981 !important; color: #ffffff !important;"
+                                class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
                                 <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
@@ -797,14 +800,14 @@
                                     URL Webhook Aktivitas (.env / Database):
                                 </label>
                                 <input type="url" name="discord_activity_webhook_url" id="input_discord_activity_webhook_url"
-                                       value="{{ old('discord_activity_webhook_url', $settings['discord_activity_webhook_url'] ?? '') }}"
-                                       placeholder="https://discord.com/api/webhooks/..."
-                                       class="clay-input w-full text-xs font-mono text-slate-700">
+                                    value="{{ old('discord_activity_webhook_url', $settings['discord_activity_webhook_url'] ?? '') }}"
+                                    placeholder="https://discord.com/api/webhooks/..."
+                                    class="clay-input w-full text-xs font-mono text-slate-700">
                                 <p class="text-[10px] text-[#77768C]">
                                     @if(config('services.discord.activity_webhook_url') || env('DISCORD_ACTIVITY_WEBHOOK_URL'))
-                                        <span class="text-[#6C63FF] font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_ACTIVITY_WEBHOOK_URL).</span>
+                                    <span class="text-[#6C63FF] font-semibold">✓ Nilai default terdeteksi dari file .env (DISCORD_ACTIVITY_WEBHOOK_URL).</span>
                                     @else
-                                        Dapat diatur di file .env atau disimpan langsung melalui form ini.
+                                    Dapat diatur di file .env atau disimpan langsung melalui form ini.
                                     @endif
                                 </p>
                             </div>
@@ -813,9 +816,9 @@
                         <div class="pt-3 border-t border-[#E8E6F0] flex items-center justify-between gap-2">
                             <span class="text-[10px] text-[#77768C] italic">Channel: Audit & Security Logs</span>
                             <button type="button" id="btn-test-discord-activity"
-                                    onclick="testDiscordWebhook('activity')"
-                                    style="background-color: #5865F2 !important; color: #ffffff !important;"
-                                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
+                                onclick="testDiscordWebhook('activity')"
+                                style="background-color: #5865F2 !important; color: #ffffff !important;"
+                                class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
                                 <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
@@ -854,9 +857,9 @@
         <!-- Sticky Bottom Action Bar -->
         <div class="clay-card p-4 flex items-center justify-between gap-4 border border-[#E8E6F0]">
             <div class="text-xs text-[#77768C]">
-                Sub-menu aktif: 
-                <strong class="text-[#6C63FF]" 
-                        x-text="activeTab === 'brand' ? 'Identitas & Brand' : (activeTab === 'tariffs' ? 'Standar Potongan' : (activeTab === 'categories' ? 'Kategori Biaya' : 'Operasional & Shift'))"></strong>
+                Sub-menu aktif:
+                <strong class="text-[#6C63FF]"
+                    x-text="activeTab === 'brand' ? 'Identitas & Brand' : (activeTab === 'tariffs' ? 'Standar Potongan' : (activeTab === 'categories' ? 'Kategori Biaya' : 'Operasional & Shift'))"></strong>
             </div>
             <button type="submit" form="main-settings-form" class="clay-btn-primary px-6 py-2.5 font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -869,19 +872,19 @@
 
     <!-- Standalone forms for Quick Shift Operations (Outside main form to prevent HTML5 nested form invalidation) -->
     <form id="settings-close-shift-form" action="{{ route('operational.close') }}" method="POST" class="hidden"
-          data-confirm="Konfirmasi Tutup Loket Operasional? Semua guide ({{ $operationalShift['active_guides_count'] }} orang) yang saat ini berstatus CHECK-IN akan OTOMATIS di-checkout oleh sistem!"
-          data-confirm-title="Tutup Loket Operasional"
-          data-confirm-danger="true"
-          data-confirm-btn="Ya, Tutup Loket Sekarang">
+        data-confirm="Konfirmasi Tutup Loket Operasional? Semua guide ({{ $operationalShift['active_guides_count'] }} orang) yang saat ini berstatus CHECK-IN akan OTOMATIS di-checkout oleh sistem!"
+        data-confirm-title="Tutup Loket Operasional"
+        data-confirm-danger="true"
+        data-confirm-btn="Ya, Tutup Loket Sekarang">
         @csrf
         <input type="hidden" name="reason" value="Penutupan manual loket dari Pengaturan Admin">
     </form>
 
     <form id="settings-force-close-shift-form" action="{{ route('operational.close') }}" method="POST" class="hidden"
-          data-confirm="Terdapat {{ $operationalShift['active_guides_count'] }} guide yang masih berstatus CHECK-IN. Lakukan Force Tutup Loket untuk checkout seluruh guide tersebut?"
-          data-confirm-title="Force Tutup Loket"
-          data-confirm-danger="true"
-          data-confirm-btn="Ya, Force Checkout Semua">
+        data-confirm="Terdapat {{ $operationalShift['active_guides_count'] }} guide yang masih berstatus CHECK-IN. Lakukan Force Tutup Loket untuk checkout seluruh guide tersebut?"
+        data-confirm-title="Force Tutup Loket"
+        data-confirm-danger="true"
+        data-confirm-btn="Ya, Force Checkout Semua">
         @csrf
         <input type="hidden" name="reason" value="Force tutup loket dari Pengaturan Admin">
     </form>
@@ -908,10 +911,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-                <button type="button" @click="openAddPackage()" 
-                        class="clay-btn-primary px-4 py-2 font-bold text-xs inline-flex items-center gap-1.5 shadow-sm">
+                <button type="button" @click="openAddPackage()"
+                    class="clay-btn-primary px-4 py-2 font-bold text-xs inline-flex items-center gap-1.5 shadow-sm">
                     <svg class="w-4 h-4 text-[#FFD166]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                     </svg>
                     <span>+ Tambah Paket Baru</span>
                 </button>
@@ -935,27 +938,34 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" @click="openEditPackage({{ Js::from($pkg) }})" 
-                                    class="clay-btn-secondary px-2.5 py-1.5 text-xs font-bold inline-flex items-center gap-1 text-[#6C63FF]"
-                                    title="Edit Nama & Harga">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <button type="button" @click="openEditPackage({{ Js::from($pkg) }})"
+                                class="clay-btn-secondary px-2.5 py-1.5 text-xs font-bold inline-flex items-center gap-1 text-[#6C63FF]"
+                                title="Edit Nama & Harga">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
                                 <span>Edit</span>
                             </button>
-                            <a href="{{ route('packages.edit', ['package' => $pkg, 'from' => 'settings']) }}" 
-                               class="p-1.5 rounded-xl text-[#77768C] hover:text-[#6C63FF] hover:bg-[#ECEBFC] transition-colors" 
-                               title="Pengaturan Skema Bertingkat (Lanjutan)">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <a href="{{ route('packages.edit', ['package' => $pkg, 'from' => 'settings']) }}"
+                                class="p-1.5 rounded-xl text-[#77768C] hover:text-[#6C63FF] hover:bg-[#ECEBFC] transition-colors"
+                                title="Pengaturan Skema Bertingkat (Lanjutan)">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
                             </a>
                             <form action="{{ route('packages.destroy', $pkg) }}" method="POST"
-                                  data-confirm="Apakah Anda yakin ingin menghapus paket '{{ $pkg->name }}'? Seluruh skema harga akan dihapus."
-                                  data-confirm-title="Hapus Paket Wisata"
-                                  data-confirm-btn="Ya, Hapus"
-                                  data-confirm-danger="true">
+                                data-confirm="Apakah Anda yakin ingin menghapus paket '{{ $pkg->name }}'? Seluruh skema harga akan dihapus."
+                                data-confirm-title="Hapus Paket Wisata"
+                                data-confirm-btn="Ya, Hapus"
+                                data-confirm-danger="true">
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" name="from" value="settings">
                                 <button type="submit" class="p-1.5 rounded-xl text-[#77768C] hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Hapus Paket">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
                             </form>
                         </div>
@@ -1010,11 +1020,13 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
             <div class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white rounded-3xl shadow-2xl border border-[#E8E6F0] relative z-10"
-                 @click.away="editPackageModal = false">
+                @click.away="editPackageModal = false">
                 <div class="flex items-center justify-between border-b border-[#E8E6F0] pb-3.5 mb-4">
                     <div class="flex items-center gap-2">
                         <span class="w-8 h-8 rounded-xl bg-[#6C63FF]/15 text-[#6C63FF] flex items-center justify-center font-bold">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                         </span>
                         <div>
                             <h3 class="font-extrabold text-[#29283D] text-sm">Edit Paket Wisata & Harga</h3>
@@ -1022,7 +1034,9 @@
                         </div>
                     </div>
                     <button type="button" @click="editPackageModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
 
@@ -1034,7 +1048,7 @@
                     <div>
                         <label class="block font-bold text-[#29283D] mb-1.5">Nama Paket Wisata <span class="text-rose-500">*</span></label>
                         <input type="text" name="name" x-model="pkgForm.name" required placeholder="Contoh: Ubud Cultural Tour"
-                               class="clay-input w-full font-bold text-xs">
+                            class="clay-input w-full font-bold text-xs">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1043,14 +1057,14 @@
                             <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#6C63FF] focus-within:ring-2 focus-within:ring-[#6C63FF]/20">
                                 <span class="px-3 py-2 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                                 <input type="number" name="default_price" x-model="pkgForm.default_price" min="0" step="5000" required
-                                       class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
+                                    class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
                             </div>
                         </div>
 
                         <div>
                             <label class="block font-bold text-[#29283D] mb-1.5">Durasi Tour <span class="text-rose-500">*</span></label>
                             <input type="text" name="duration" x-model="pkgForm.duration" required placeholder="Contoh: 8 Jam / Full Day"
-                                   class="clay-input w-full font-bold text-xs">
+                                class="clay-input w-full font-bold text-xs">
                         </div>
                     </div>
 
@@ -1087,11 +1101,13 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
             <div class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white rounded-3xl shadow-2xl border border-[#E8E6F0] relative z-10"
-                 @click.away="addPackageModal = false">
+                @click.away="addPackageModal = false">
                 <div class="flex items-center justify-between border-b border-[#E8E6F0] pb-3.5 mb-4">
                     <div class="flex items-center gap-2">
                         <span class="w-8 h-8 rounded-xl bg-[#72D6C9]/20 text-[#147a6f] flex items-center justify-center font-bold">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                            </svg>
                         </span>
                         <div>
                             <h3 class="font-extrabold text-[#29283D] text-sm">Tambah Paket Wisata Baru</h3>
@@ -1099,7 +1115,9 @@
                         </div>
                     </div>
                     <button type="button" @click="addPackageModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
 
@@ -1110,7 +1128,7 @@
                     <div>
                         <label class="block font-bold text-[#29283D] mb-1.5">Nama Paket Wisata <span class="text-rose-500">*</span></label>
                         <input type="text" name="name" x-model="pkgForm.name" required placeholder="Contoh: Kintamani & Batur Sunrise"
-                               class="clay-input w-full font-bold text-xs">
+                            class="clay-input w-full font-bold text-xs">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1119,14 +1137,14 @@
                             <div class="flex items-center rounded-2xl bg-white border border-[#E8E6F0] shadow-2xs overflow-hidden focus-within:border-[#6C63FF] focus-within:ring-2 focus-within:ring-[#6C63FF]/20">
                                 <span class="px-3 py-2 bg-[#F4F3FA] text-xs font-bold text-[#77768C] border-r border-[#E8E6F0] select-none">Rp</span>
                                 <input type="number" name="default_price" x-model="pkgForm.default_price" min="0" step="5000" required
-                                       class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
+                                    class="flex-1 px-3 py-2 bg-transparent text-xs font-bold text-[#29283D] outline-none">
                             </div>
                         </div>
 
                         <div>
                             <label class="block font-bold text-[#29283D] mb-1.5">Durasi Tour <span class="text-rose-500">*</span></label>
                             <input type="text" name="duration" x-model="pkgForm.duration" required placeholder="Contoh: 8 Jam / Full Day"
-                                   class="clay-input w-full font-bold text-xs">
+                                class="clay-input w-full font-bold text-xs">
                         </div>
                     </div>
 
@@ -1151,81 +1169,81 @@
 </div>
 
 <script>
-function testDiscordWebhook(type = 'operational') {
-    const isActivity = type === 'activity';
-    const btnId = isActivity ? 'btn-test-discord-activity' : 'btn-test-discord-operational';
-    const btnTextId = isActivity ? 'btn-test-discord-activity-text' : 'btn-test-discord-operational-text';
-    const inputId = isActivity ? 'input_discord_activity_webhook_url' : 'input_discord_webhook_url';
+    function testDiscordWebhook(type = 'operational') {
+        const isActivity = type === 'activity';
+        const btnId = isActivity ? 'btn-test-discord-activity' : 'btn-test-discord-operational';
+        const btnTextId = isActivity ? 'btn-test-discord-activity-text' : 'btn-test-discord-operational-text';
+        const inputId = isActivity ? 'input_discord_activity_webhook_url' : 'input_discord_webhook_url';
 
-    const btn = document.getElementById(btnId);
-    const btnText = document.getElementById(btnTextId);
-    const customUrl = document.getElementById(inputId) ? document.getElementById(inputId).value : '';
+        const btn = document.getElementById(btnId);
+        const btnText = document.getElementById(btnTextId);
+        const customUrl = document.getElementById(inputId) ? document.getElementById(inputId).value : '';
 
-    const originalText = btnText ? btnText.innerText : 'Tes Notifikasi';
-    if (btn) btn.disabled = true;
-    if (btnText) btnText.innerText = 'Mengirim Tes...';
+        const originalText = btnText ? btnText.innerText : 'Tes Notifikasi';
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.innerText = 'Mengirim Tes...';
 
-    const payload = {
-        type: type
-    };
-    if (isActivity) {
-        payload.discord_activity_webhook_url = customUrl;
-    } else {
-        payload.discord_webhook_url = customUrl;
-    }
-
-    fetch('{{ route('settings.test-discord') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(async (res) => {
-        const data = await res.json();
-        if (res.ok && data.success) {
-            if ((window.ArtAlert || window.Swal)) {
-                (window.ArtAlert || window.Swal).fire({
-                    icon: 'success',
-                    title: 'Tes Notifikasi Berhasil!',
-                    text: data.message || 'Pesan uji coba berhasil terkirim ke channel Discord.',
-                    confirmButtonColor: isActivity ? '#6C63FF' : '#10B981'
-                });
-            } else {
-                alert(data.message || 'Pesan uji coba berhasil terkirim ke Discord.');
-            }
+        const payload = {
+            type: type
+        };
+        if (isActivity) {
+            payload.discord_activity_webhook_url = customUrl;
         } else {
-            const envName = isActivity ? 'DISCORD_ACTIVITY_WEBHOOK_URL' : 'DISCORD_WEBHOOK_URL';
-            if ((window.ArtAlert || window.Swal)) {
-                (window.ArtAlert || window.Swal).fire({
-                    icon: 'warning',
-                    title: 'Pemberitahuan Webhook',
-                    html: (data.message || 'Gagal mengirim pesan uji coba ke Discord.') + '<br><br><span class="text-xs text-slate-500">Pastikan <code>' + envName + '</code> telah diatur di file <code>.env</code> server atau diisi pada form input.</span>',
-                    confirmButtonColor: '#5865F2'
-                });
-            } else {
-                alert(data.message || 'Gagal mengirim pesan uji coba ke Discord.');
-            }
+            payload.discord_webhook_url = customUrl;
         }
-    })
-    .catch((err) => {
-        if ((window.ArtAlert || window.Swal)) {
-            (window.ArtAlert || window.Swal).fire({
-                icon: 'error',
-                title: 'Kesalahan Jaringan',
-                text: 'Terjadi kesalahan saat menghubungi server: ' + err.message,
-                confirmButtonColor: '#EF4444'
+
+        fetch("{{ route('settings.test-discord') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(async (res) => {
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    if ((window.ArtAlert || window.Swal)) {
+                        (window.ArtAlert || window.Swal).fire({
+                            icon: 'success',
+                            title: 'Tes Notifikasi Berhasil!',
+                            text: data.message || 'Pesan uji coba berhasil terkirim ke channel Discord.',
+                            confirmButtonColor: isActivity ? '#6C63FF' : '#10B981'
+                        });
+                    } else {
+                        alert(data.message || 'Pesan uji coba berhasil terkirim ke Discord.');
+                    }
+                } else {
+                    const envName = isActivity ? 'DISCORD_ACTIVITY_WEBHOOK_URL' : 'DISCORD_WEBHOOK_URL';
+                    if ((window.ArtAlert || window.Swal)) {
+                        (window.ArtAlert || window.Swal).fire({
+                            icon: 'warning',
+                            title: 'Pemberitahuan Webhook',
+                            html: (data.message || 'Gagal mengirim pesan uji coba ke Discord.') + '<br><br><span class="text-xs text-slate-500">Pastikan <code>' + envName + '</code> telah diatur di file <code>.env</code> server atau diisi pada form input.</span>',
+                            confirmButtonColor: '#5865F2'
+                        });
+                    } else {
+                        alert(data.message || 'Gagal mengirim pesan uji coba ke Discord.');
+                    }
+                }
+            })
+            .catch((err) => {
+                if ((window.ArtAlert || window.Swal)) {
+                    (window.ArtAlert || window.Swal).fire({
+                        icon: 'error',
+                        title: 'Kesalahan Jaringan',
+                        text: 'Terjadi kesalahan saat menghubungi server: ' + err.message,
+                        confirmButtonColor: '#EF4444'
+                    });
+                } else {
+                    alert('Terjadi kesalahan jaringan: ' + err.message);
+                }
+            })
+            .finally(() => {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.innerText = originalText;
             });
-        } else {
-            alert('Terjadi kesalahan jaringan: ' + err.message);
-        }
-    })
-    .finally(() => {
-        if (btn) btn.disabled = false;
-        if (btnText) btnText.innerText = originalText;
-    });
-}
+    }
 </script>
 @endsection
