@@ -4,7 +4,7 @@
 @section('header', 'Pengaturan Sistem')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6" 
+<div class="space-y-6" 
      x-data="{
          activeTab: '{{ request()->query('tab', $activeTab ?? 'brand') }}',
          categories: {{ Js::from($settings['expense_categories']) }},
@@ -1082,7 +1082,7 @@ function testDiscordWebhook() {
     if (btn) btn.disabled = true;
     if (btnText) btnText.innerText = 'Mengirim Tes...';
 
-    fetch('{{ route('settings.test-discord') }}', {
+    fetch("{{ route('settings.test-discord') }}", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
